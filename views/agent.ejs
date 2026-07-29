@@ -66,9 +66,10 @@
             <button class="btn btn-secondary" id="quote-btn">Run quote comparison</button>
             <div id="quote-result" class="result-box">No comparison yet.</div>
           </article>
+
           <article class="card">
             <h3>BOQ / BOM reader</h3>
-            <p class="muted">Upload a requirement brief and receive an estimated material list for procurement.</p>
+            <p class="muted">Generate a material list for procurement after the requirement brief is analyzed.</p>
             <form id="boq-form">
               <label for="boqType">Project type</label>
               <select id="boqType" name="projectType">
@@ -81,11 +82,60 @@
             </form>
             <div id="boq-result" class="result-box">No BOM yet.</div>
           </article>
+
           <article class="card">
             <h3>Voice assistant command</h3>
             <p class="muted">The assistant can help with search, compare, negotiate and repeat ordering.</p>
             <button class="btn btn-secondary" id="assistant-btn">Trigger workflow</button>
             <div id="assistant-result" class="result-box">Awaiting voice-ready procurement workflow.</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card-grid">
+          <article class="card">
+            <h3>Vendor match engine</h3>
+            <form id="vendor-form">
+              <label for="vendorCity">City</label>
+              <select id="vendorCity" name="city">
+                <option value="Gurugram">Gurugram</option>
+                <option value="Noida">Noida</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Faridabad">Faridabad</option>
+              </select>
+              <label for="vendorBudget">Budget</label>
+              <input id="vendorBudget" name="budget" type="number" value="500000" />
+              <label for="vendorDelivery">Max lead time (hrs)</label>
+              <input id="vendorDelivery" name="delivery" type="number" value="24" />
+              <label for="vendorQuality">Preferred quality grade</label>
+              <select id="vendorQuality" name="quality">
+                <option value="A">A</option>
+                <option value="A+">A+</option>
+              </select>
+              <button class="btn btn-secondary" style="margin-top: 0.8rem;" type="submit">Match vendors</button>
+            </form>
+            <div id="vendor-result" class="result-box">No vendor match yet.</div>
+          </article>
+
+          <article class="card">
+            <h3>Bulk quotation request</h3>
+            <form id="quote-request-form">
+              <label for="quoteProject">Project name</label>
+              <input id="quoteProject" name="project" type="text" value="North Tower Residences" />
+              <label for="quoteCity">City</label>
+              <input id="quoteCity" name="city" type="text" value="Gurugram" />
+              <label for="quoteMaterials">Materials</label>
+              <input id="quoteMaterials" name="materials" type="text" value="Cement, steel, tiles" />
+              <button class="btn btn-secondary" style="margin-top: 0.8rem;" type="submit">Submit quote request</button>
+            </form>
+            <div id="quote-request-result" class="result-box">No quote request yet.</div>
+          </article>
+
+          <article class="card">
+            <h3>Supplier operations preview</h3>
+            <p class="muted">Access inventory, demand prediction, pricing updates, and customer lead tracking in the supplier dashboard.</p>
+            <a class="btn btn-secondary" href="/dashboard">Open dashboard</a>
           </article>
         </div>
       </section>
@@ -96,6 +146,8 @@
       const quoteBtn = document.getElementById('quote-btn');
       const assistantBtn = document.getElementById('assistant-btn');
       const boqForm = document.getElementById('boq-form');
+      const vendorForm = document.getElementById('vendor-form');
+      const quoteRequestForm = document.getElementById('quote-request-form');
 
       recommendationForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -129,9 +181,29 @@
       assistantBtn.addEventListener('click', async () => {
         const result = document.getElementById('assistant-result');
         result.innerHTML = 'Activating site procurement assistant...';
-        const response = await fetch('/api/agent/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intent: 'procurement', location: 'Gurugram' }) });
+        const response = await fetch('/api/agent/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intent: 'procurement', location: 'Gurugram', voice: 'Order cement and steel for the next site visit' }) });
         const data = await response.json();
         result.innerHTML = `<strong>${data.response}</strong><ul>${data.actions.map((item) => `<li>${item}</li>`).join('')}</ul>`;
+      });
+
+      vendorForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(vendorForm);
+        const result = document.getElementById('vendor-result');
+        result.innerHTML = 'Matching vendors...';
+        const response = await fetch('/api/ai/vendor-match', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(formData)) });
+        const data = await response.json();
+        result.innerHTML = `<ul>${data.matches.map((item) => `<li>${item.name} • ${item.city} • ₹${item.adjustedQuote.toLocaleString()} • ${item.deliveryFit}</li>`).join('')}</ul>`;
+      });
+
+      quoteRequestForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(quoteRequestForm);
+        const result = document.getElementById('quote-request-result');
+        result.innerHTML = 'Routing your bulk quotation request...';
+        const response = await fetch('/api/quote-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(formData)) });
+        const data = await response.json();
+        result.innerHTML = `<strong>${data.message}</strong><br/>Project: ${data.request.project} • ${data.request.city}`;
       });
     </script>
   </body>

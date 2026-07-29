@@ -39,13 +39,26 @@ const categories = [
   { name: 'Bricks & Blocks', icon: '🧱', description: 'Fly ash bricks, AAC blocks and masonry accessories.' },
   { name: 'Tiles & Finishes', icon: '🪟', description: 'Flooring, wall tiles, sanitary and facade finishing solutions.' },
   { name: 'Electrical & Plumbing', icon: '⚡', description: 'Wires, pipes, fixtures, pumps and complete installation kits.' },
+  { name: 'Paint & Coatings', icon: '🎨', description: 'Interior, exterior and waterproofing systems for quick handover.' },
+  { name: 'Hardware & Joinery', icon: '🔧', description: 'Door fittings, false ceiling hardware and utility accessories.' },
+  { name: 'Plywood & Glass', icon: '🪟', description: 'Commercial plywood, laminates, toughened glass and facade panels.' },
+  { name: 'Tools & Equipment', icon: '🛠️', description: 'Power tools, lifting gear and site equipment for rapid execution.' },
 ];
 
 const suppliers = [
-  { id: 1, name: 'MetroBuild Supply', city: 'Gurugram', rating: 4.9, delivery: '24 hrs', price: '₹368/50kg bag', stock: 'High', focus: 'Fast-turn prefab and cement' },
-  { id: 2, name: 'NCR Material Hub', city: 'Noida', rating: 4.8, delivery: '36 hrs', price: '₹362/50kg bag', stock: 'Medium', focus: 'Bulk contractor pricing' },
-  { id: 3, name: 'Delhi ProBuild', city: 'Delhi', rating: 4.7, delivery: '48 hrs', price: '₹370/50kg bag', stock: 'High', focus: 'Architect and retail support' },
-  { id: 4, name: 'Axis Construction Exchange', city: 'Faridabad', rating: 4.6, delivery: '30 hrs', price: '₹365/50kg bag', stock: 'Medium', focus: 'Multi-site procurement' },
+  { id: 1, name: 'MetroBuild Supply', city: 'Gurugram', zone: 'Western NCR', rating: 4.9, delivery: '24 hrs', price: '₹368/50kg bag', stock: 'High', focus: 'Fast-turn prefab and cement', quality: 'A+' },
+  { id: 2, name: 'NCR Material Hub', city: 'Noida', zone: 'Eastern NCR', rating: 4.8, delivery: '36 hrs', price: '₹362/50kg bag', stock: 'Medium', focus: 'Bulk contractor pricing', quality: 'A' },
+  { id: 3, name: 'Delhi ProBuild', city: 'Delhi', zone: 'Central NCR', rating: 4.7, delivery: '48 hrs', price: '₹370/50kg bag', stock: 'High', focus: 'Architect and retail support', quality: 'A' },
+  { id: 4, name: 'Axis Construction Exchange', city: 'Faridabad', zone: 'Southern NCR', rating: 4.6, delivery: '30 hrs', price: '₹365/50kg bag', stock: 'Medium', focus: 'Multi-site procurement', quality: 'A' },
+];
+
+const products = [
+  { name: 'OPC 43 Grade Cement', category: 'Cement', unit: '50kg bag', price: '₹365', leadTime: '24 hrs' },
+  { name: 'TMT Steel Fe500', category: 'Steel', unit: 'ton', price: '₹72,000', leadTime: '36 hrs' },
+  { name: 'River Sand', category: 'Sand', unit: 'truck', price: '₹11,200', leadTime: '12 hrs' },
+  { name: 'AAC Blocks', category: 'Blocks', unit: 'piece', price: '₹92', leadTime: '18 hrs' },
+  { name: 'Premium Sanitary Kit', category: 'Sanitary', unit: 'set', price: '₹18,900', leadTime: '48 hrs' },
+  { name: 'Smart Switchgear', category: 'Electrical', unit: 'set', price: '₹8,450', leadTime: '24 hrs' },
 ];
 
 const projects = [
@@ -60,6 +73,23 @@ const metrics = [
   { label: 'Avg. quote turnaround', value: '12 mins' },
   { label: 'Repeat order rate', value: '72%' },
 ];
+
+const locations = [
+  { city: 'Gurugram', coverage: 'High', focus: 'Luxury villas and quick-turn prefab' },
+  { city: 'Noida', coverage: 'High', focus: 'High-rise and commercial procurement' },
+  { city: 'Delhi', coverage: 'Medium', focus: 'Retail and interior fit-out' },
+  { city: 'Faridabad', coverage: 'High', focus: 'Industrial and large-scale bulk orders' },
+  { city: 'Ghaziabad', coverage: 'Medium', focus: 'Warehouse and infrastructure supply' },
+  { city: 'Greater Noida', coverage: 'Medium', focus: 'Planned township and builder projects' },
+];
+
+const orders = [
+  { id: 'ORD-1042', customer: 'Apex Builders', status: 'In transit', amount: '₹4.8L', eta: 'Today' },
+  { id: 'ORD-1048', customer: 'Milan Interiors', status: 'Queued for dispatch', amount: '₹1.2L', eta: 'Tomorrow' },
+  { id: 'ORD-1061', customer: 'Cityline Estates', status: 'Invoice ready', amount: '₹6.4L', eta: '2 days' },
+];
+
+const quoteRequests = [];
 
 function buildRecommendation(projectType, city, budget) {
   const base = [
@@ -108,6 +138,22 @@ function buildBoq(projectType, areaSqft, floors) {
   };
 }
 
+function buildVendorMatch({ city, budget, delivery, quality }) {
+  const normalizedBudget = Number(budget || 500000);
+  const normalizedDelivery = Number(delivery || 24);
+  const normalizedQuality = quality || 'A';
+
+  return suppliers
+    .filter((supplier) => supplier.city.toLowerCase() === city.toLowerCase() || supplier.zone.toLowerCase().includes(city.toLowerCase()))
+    .map((supplier) => ({
+      ...supplier,
+      adjustedQuote: Math.round(normalizedBudget * (0.74 + supplier.id * 0.01)),
+      deliveryFit: supplier.delivery.includes('24') || supplier.delivery.includes('30') ? 'Excellent' : 'Good',
+      score: Math.round((supplier.rating * 20) - (normalizedDelivery > 24 ? 5 : 0) - (supplier.quality === normalizedQuality ? 3 : 0)),
+    }))
+    .sort((a, b) => b.score - a.score);
+}
+
 app.locals.site = {
   title: 'MODIT',
   tagline: 'AI-first building materials platform for Delhi NCR',
@@ -119,6 +165,8 @@ app.get('/', (req, res) => {
     suppliers,
     projects,
     metrics,
+    products,
+    locations,
   });
 });
 
@@ -126,11 +174,32 @@ app.get('/agentic-ai', (req, res) => {
   res.render('agent', {
     categories,
     suppliers,
+    products,
+  });
+});
+
+app.get('/dashboard', (req, res) => {
+  res.render('dashboard', {
+    suppliers,
+    orders,
+    quoteRequests,
   });
 });
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'modit', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/catalog/products', (req, res) => {
+  res.json(products);
+});
+
+app.get('/api/suppliers/locations', (req, res) => {
+  res.json(locations);
+});
+
+app.get('/api/orders', (req, res) => {
+  res.json(orders);
 });
 
 app.get('/api/ai/recommendations', (req, res) => {
@@ -160,21 +229,45 @@ app.post('/api/ai/quote-comparison', (req, res) => {
   res.json({ budget, comparison });
 });
 
+app.post('/api/ai/vendor-match', (req, res) => {
+  const match = buildVendorMatch(req.body);
+  res.json({ matches: match.slice(0, 3) });
+});
+
+app.post('/api/quote-request', (req, res) => {
+  const payload = {
+    id: `Q-${quoteRequests.length + 1}`,
+    project: req.body.project || 'New build',
+    city: req.body.city || 'Gurugram',
+    budget: req.body.budget || '₹5L-₹10L',
+    delivery: req.body.delivery || 'Within 48 hrs',
+    materials: req.body.materials || 'Cement, steel, tiles',
+    createdAt: new Date().toISOString(),
+  };
+
+  quoteRequests.push(payload);
+  res.json({
+    message: 'Bulk quotation request captured and routed to MODIT AI negotiators.',
+    request: payload,
+  });
+});
+
 app.post('/api/agent/assistant', (req, res) => {
   const intent = req.body.intent || 'search';
   const location = req.body.location || 'Gurugram';
+  const voice = req.body.voice || 'Order cement and steel for the next site visit';
 
   const actions = [
     `Locate the best ${intent} partner near ${location}`,
     'Compare quote, delivery and quality scores in real time',
-    'Generate a draft purchase order and payment workflow',
-    'Set a proactive reminder for the next reorder cycle',
+    'Generate a draft purchase order, GST invoice and BNPL workflow',
+    `Trigger a smart reorder reminder for ${voice}`,
   ];
 
   res.json({
     intent,
     location,
-    response: 'MODIT Agentic AI has prepared a procurement sequence for your site team.',
+    response: 'MODIT Agentic AI has prepared a procurement and delivery sequence for your site team.',
     actions,
   });
 });

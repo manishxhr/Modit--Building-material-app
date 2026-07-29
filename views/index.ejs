@@ -15,15 +15,15 @@
         <div>
           <p class="muted">Delhi NCR • Contractors • Builders • Architects • Suppliers</p>
           <h1>Buy smarter, quote faster, and keep every site moving.</h1>
-          <p>MODIT unifies discovery, price comparison, quotation workflows, supplier intelligence, and AI-led procurement for construction teams across Delhi NCR.</p>
+          <p>MODIT combines building-material discovery, supplier intelligence, quotation workflows, GST-ready billing, and agentic AI to power procurement across Delhi NCR.</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="/agentic-ai">Explore Agentic AI</a>
-            <a class="btn btn-secondary" href="#suppliers">View supplier network</a>
+            <a class="btn btn-secondary" href="/dashboard">Open supplier dashboard</a>
           </div>
         </div>
         <div class="panel hero-card">
           <h3>Live procurement command center</h3>
-          <p class="muted">Track stock, negotiate quotes, and manage repeat procurement from one intelligent workspace.</p>
+          <p class="muted">Track inventory, negotiate quotes, trigger repeat orders, and manage site delivery with one intelligent workspace.</p>
           <div class="metric-grid">
             <% metrics.forEach(function(metric){ %>
               <div class="metric">
@@ -45,6 +45,39 @@
             <article class="card">
               <h3><%= category.icon %> <%= category.name %></h3>
               <p class="muted"><%= category.description %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Popular procurement products</h2>
+          <span class="muted">Fast-moving SKUs with live quote-ready pricing</span>
+        </div>
+        <div class="card-grid">
+          <% products.forEach(function(product){ %>
+            <article class="card">
+              <h4><%= product.name %></h4>
+              <p class="muted"><%= product.category %> • <%= product.unit %></p>
+              <p><strong><%= product.price %></strong></p>
+              <p>Lead time: <%= product.leadTime %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Delhi NCR supplier mapping</h2>
+          <span class="muted">Location-wise coverage for builders, contractors and retailers</span>
+        </div>
+        <div class="card-grid">
+          <% locations.forEach(function(location){ %>
+            <article class="card">
+              <h4><%= location.city %></h4>
+              <p class="muted">Coverage: <%= location.coverage %></p>
+              <p><%= location.focus %></p>
             </article>
           <% }) %>
         </div>
@@ -78,7 +111,7 @@
               <p class="muted"><%= supplier.city %> • ★ <%= supplier.rating %></p>
               <p><strong><%= supplier.price %></strong></p>
               <p><%= supplier.focus %></p>
-              <p>Delivery: <%= supplier.delivery %> • Stock: <%= supplier.stock %></p>
+              <p>Delivery: <%= supplier.delivery %> • Stock: <%= supplier.stock %> • Quality: <%= supplier.quality %></p>
             </article>
           <% }) %>
         </div>
@@ -91,7 +124,8 @@
             <li>AI-driven material recommendations by project type and budget.</li>
             <li>Automatic BOQ/BOM extraction and procurement planning.</li>
             <li>Voice-first ordering and proactive site reorder reminders.</li>
-            <li>BNPL and business payment workflows for contractors and retailers.</li>
+            <li>BNPL, GST invoice, and business payment workflows for contractors and suppliers.</li>
+            <li>Bulk quotation requests and location-based vendor matching for Delhi NCR.</li>
           </ul>
         </div>
       </section>

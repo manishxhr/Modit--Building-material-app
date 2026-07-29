@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MODIT Supplier Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="muted">Supplier operations • Inventory • Pricing • Leads</p>
+          <h1>AI dashboard for suppliers and procurement teams.</h1>
+          <p>Track orders, review live demand signals, manage credit workflows, and coordinate repeat ordering across Delhi NCR.</p>
+        </div>
+        <div class="panel hero-card">
+          <h3>Executive snapshot</h3>
+          <div class="metric-grid">
+            <div class="metric">
+              <strong>94%</strong>
+              <span class="muted">Inventory coverage</span>
+            </div>
+            <div class="metric">
+              <strong>₹14.8L</strong>
+              <span class="muted">Pending quote value</span>
+            </div>
+            <div class="metric">
+              <strong>+18%</strong>
+              <span class="muted">Demand forecast</span>
+            </div>
+            <div class="metric">
+              <strong>3</strong>
+              <span class="muted">BNPL approvals</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Live order operations</h2>
+          <span class="muted">GST-ready billing and workflow milestones</span>
+        </div>
+        <div class="card-grid">
+          <% orders.forEach(function(order){ %>
+            <article class="card">
+              <h4><%= order.id %></h4>
+              <p class="muted"><%= order.customer %></p>
+              <p>Status: <%= order.status %></p>
+              <p>Amount: <%= order.amount %></p>
+              <p>ETA: <%= order.eta %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Quote requests awaiting action</h2>
+          <span class="muted">Bulk requests routed to negotiation and procurement teams</span>
+        </div>
+        <div class="card-grid">
+          <% quoteRequests.forEach(function(request){ %>
+            <article class="card">
+              <h4><%= request.id %></h4>
+              <p class="muted"><%= request.project %></p>
+              <p><%= request.city %> • <%= request.budget %></p>
+              <p>Delivery: <%= request.delivery %></p>
+              <p>Materials: <%= request.materials %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
