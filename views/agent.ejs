@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MODIT Agentic AI</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="muted">Agentic AI • Quote comparison • BOQ analysis • Voice procurement</p>
+          <h1>Your intelligent site procurement assistant.</h1>
+          <p>MODIT Agentic AI helps teams search suppliers, compare quotes, create BOMs, place orders, track delivery, and trigger repeat procurement without leaving the workflow.</p>
+        </div>
+        <div class="panel hero-card">
+          <h3>Run an AI procurement workflow</h3>
+          <form id="recommendation-form">
+            <div class="form-grid">
+              <div>
+                <label for="projectType">Project type</label>
+                <select id="projectType" name="projectType">
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="fitout">Fit-out</option>
+                </select>
+              </div>
+              <div>
+                <label for="city">City</label>
+                <select id="city" name="city">
+                  <option value="Gurugram">Gurugram</option>
+                  <option value="Noida">Noida</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Faridabad">Faridabad</option>
+                </select>
+              </div>
+              <div>
+                <label for="budget">Budget profile</label>
+                <select id="budget" name="budget">
+                  <option value="medium">Balanced</option>
+                  <option value="high">Premium</option>
+                  <option value="economy">Cost-conscious</option>
+                </select>
+              </div>
+              <div>
+                <label for="areaSqft">Area (sq ft)</label>
+                <input id="areaSqft" name="areaSqft" type="number" value="1800" />
+              </div>
+            </div>
+            <div class="hero-actions" style="margin-top: 1rem;">
+              <button class="btn btn-primary" type="submit">Generate recommendation</button>
+            </div>
+          </form>
+          <div id="recommendation-result" class="result-box">Loading your AI procurement plan…</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card-grid">
+          <article class="card">
+            <h3>AI quotation comparison</h3>
+            <p class="muted">Compare supplier quotes by rate, stock confidence and expected delivery time.</p>
+            <button class="btn btn-secondary" id="quote-btn">Run quote comparison</button>
+            <div id="quote-result" class="result-box">No comparison yet.</div>
+          </article>
+          <article class="card">
+            <h3>BOQ / BOM reader</h3>
+            <p class="muted">Upload a requirement brief and receive an estimated material list for procurement.</p>
+            <form id="boq-form">
+              <label for="boqType">Project type</label>
+              <select id="boqType" name="projectType">
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+              </select>
+              <label for="floors">Floors</label>
+              <input id="floors" name="floors" type="number" value="2" />
+              <button class="btn btn-secondary" style="margin-top: 0.8rem;" type="submit">Build BOM</button>
+            </form>
+            <div id="boq-result" class="result-box">No BOM yet.</div>
+          </article>
+          <article class="card">
+            <h3>Voice assistant command</h3>
+            <p class="muted">The assistant can help with search, compare, negotiate and repeat ordering.</p>
+            <button class="btn btn-secondary" id="assistant-btn">Trigger workflow</button>
+            <div id="assistant-result" class="result-box">Awaiting voice-ready procurement workflow.</div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const recommendationForm = document.getElementById('recommendation-form');
+      const quoteBtn = document.getElementById('quote-btn');
+      const assistantBtn = document.getElementById('assistant-btn');
+      const boqForm = document.getElementById('boq-form');
+
+      recommendationForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(recommendationForm);
+        const params = new URLSearchParams(formData);
+        const result = document.getElementById('recommendation-result');
+        result.innerHTML = 'Analyzing project profile...';
+        const response = await fetch(`/api/ai/recommendations?${params.toString()}`);
+        const data = await response.json();
+        result.innerHTML = `<strong>${data.projectType.toUpperCase()} • ${data.city}</strong><br/>${data.aiNote}<ul>${data.materials.map((item) => `<li><strong>${item.name}</strong> — ${item.reason}</li>`).join('')}</ul>`;
+      });
+
+      quoteBtn.addEventListener('click', async () => {
+        const result = document.getElementById('quote-result');
+        result.innerHTML = 'Comparing supplier quotes...';
+        const response = await fetch('/api/ai/quote-comparison', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ budget: 4500000 }) });
+        const data = await response.json();
+        result.innerHTML = `<strong>Budget: ₹${data.budget.toLocaleString()}</strong><ul>${data.comparison.map((item) => `<li>${item.name} — ₹${item.quote.toLocaleString()} • ${item.confidence} confidence</li>`).join('')}</ul>`;
+      });
+
+      boqForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(boqForm);
+        const result = document.getElementById('boq-result');
+        result.innerHTML = 'Building your BOM...';
+        const response = await fetch('/api/ai/boq', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(formData)) });
+        const data = await response.json();
+        result.innerHTML = `<strong>${data.summary}</strong><ul>${data.materials.map((item) => `<li>${item.name}: ${item.quantity} • ${item.estimate}</li>`).join('')}</ul>`;
+      });
+
+      assistantBtn.addEventListener('click', async () => {
+        const result = document.getElementById('assistant-result');
+        result.innerHTML = 'Activating site procurement assistant...';
+        const response = await fetch('/api/agent/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intent: 'procurement', location: 'Gurugram' }) });
+        const data = await response.json();
+        result.innerHTML = `<strong>${data.response}</strong><ul>${data.actions.map((item) => `<li>${item}</li>`).join('')}</ul>`;
+      });
+    </script>
+  </body>
+</html>

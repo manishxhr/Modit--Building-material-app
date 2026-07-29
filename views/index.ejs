@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= site.title %> | AI-first Building Materials Platform</title>
+    <meta name="description" content="MODIT is an AI-first building material discovery and procurement platform for Delhi NCR." />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="muted">Delhi NCR • Contractors • Builders • Architects • Suppliers</p>
+          <h1>Buy smarter, quote faster, and keep every site moving.</h1>
+          <p>MODIT unifies discovery, price comparison, quotation workflows, supplier intelligence, and AI-led procurement for construction teams across Delhi NCR.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/agentic-ai">Explore Agentic AI</a>
+            <a class="btn btn-secondary" href="#suppliers">View supplier network</a>
+          </div>
+        </div>
+        <div class="panel hero-card">
+          <h3>Live procurement command center</h3>
+          <p class="muted">Track stock, negotiate quotes, and manage repeat procurement from one intelligent workspace.</p>
+          <div class="metric-grid">
+            <% metrics.forEach(function(metric){ %>
+              <div class="metric">
+                <strong><%= metric.value %></strong>
+                <span class="muted"><%= metric.label %></span>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="categories">
+        <div class="section-title">
+          <h2>Core material categories</h2>
+          <a class="muted" href="/agentic-ai">Try AI planner</a>
+        </div>
+        <div class="card-grid">
+          <% categories.forEach(function(category){ %>
+            <article class="card">
+              <h3><%= category.icon %> <%= category.name %></h3>
+              <p class="muted"><%= category.description %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Featured project intelligence</h2>
+          <span class="muted">Built for residential, commercial and fit-out teams</span>
+        </div>
+        <div class="card-grid">
+          <% projects.forEach(function(project){ %>
+            <article class="card">
+              <h4><%= project.title %></h4>
+              <p class="muted"><%= project.location %> • <%= project.timeline %></p>
+              <p><%= project.useCase %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section" id="suppliers">
+        <div class="section-title">
+          <h2>Delhi NCR supplier network</h2>
+          <span class="muted">Real-time availability and price comparison</span>
+        </div>
+        <div class="card-grid">
+          <% suppliers.forEach(function(supplier){ %>
+            <article class="card">
+              <h4><%= supplier.name %></h4>
+              <p class="muted"><%= supplier.city %> • ★ <%= supplier.rating %></p>
+              <p><strong><%= supplier.price %></strong></p>
+              <p><%= supplier.focus %></p>
+              <p>Delivery: <%= supplier.delivery %> • Stock: <%= supplier.stock %></p>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="surface">
+          <h2>What makes MODIT different</h2>
+          <ul>
+            <li>AI-driven material recommendations by project type and budget.</li>
+            <li>Automatic BOQ/BOM extraction and procurement planning.</li>
+            <li>Voice-first ordering and proactive site reorder reminders.</li>
+            <li>BNPL and business payment workflows for contractors and retailers.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">MODIT is a premium prototype for Delhi NCR building materials procurement and AI-led project operations.</div>
+    </footer>
+  </body>
+</html>
