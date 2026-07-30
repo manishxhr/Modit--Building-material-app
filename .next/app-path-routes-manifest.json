@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/catalog/route": "/api/catalog",
+  "/api/dashboard/route": "/api/dashboard",
+  "/api/orders/route": "/api/orders",
+  "/api/rfqs/[id]/accept/route": "/api/rfqs/[id]/accept",
+  "/api/suppliers/route": "/api/suppliers",
+  "/api/orders/[id]/route": "/api/orders/[id]",
+  "/api/workflow/plan/route": "/api/workflow/plan",
+  "/ai/page": "/ai",
+  "/catalog/page": "/catalog",
+  "/page": "/",
+  "/orders/page": "/orders",
+  "/dashboard/page": "/dashboard",
+  "/suppliers/page": "/suppliers"
+}

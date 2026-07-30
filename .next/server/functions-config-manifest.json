@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/catalog": {},
+    "/api/dashboard": {},
+    "/api/orders": {},
+    "/api/orders/[id]": {},
+    "/api/suppliers": {},
+    "/api/rfqs/[id]/accept": {},
+    "/api/workflow/plan": {}
+  }
+}

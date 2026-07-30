@@ -91,7 +91,7 @@ const seedOrders = [
 ];
 
 const storePath = path.join(__dirname, 'data', 'modit-store.json');
-const emptyStore = { quoteRequests: [], orders: seedOrders, activity: [] };
+const emptyStore = { quoteRequests: [], orders: seedOrders, activity: [], suppliers: [] };
 function loadStore() {
   try { return { ...emptyStore, ...JSON.parse(fs.readFileSync(storePath, 'utf8')) }; }
   catch (error) { return { ...emptyStore, orders: [...seedOrders] }; }
@@ -108,6 +108,7 @@ function addActivity(type, text, entityId) {
   store.activity = store.activity.slice(0, 50);
 }
 function currency(value) { return `₹${Math.round(value).toLocaleString('en-IN')}`; }
+function allSuppliers() { return [...suppliers, ...store.suppliers]; }
 
 function buildRecommendation(projectType, city, budget) {
   const base = [
@@ -161,7 +162,7 @@ function buildVendorMatch({ city, budget, delivery, quality }) {
   const normalizedDelivery = Number(delivery || 24);
   const normalizedQuality = quality || 'A';
 
-  return suppliers
+  return allSuppliers()
     .filter((supplier) => supplier.city.toLowerCase() === city.toLowerCase() || supplier.zone.toLowerCase().includes(city.toLowerCase()))
     .map((supplier) => ({
       ...supplier,
@@ -198,7 +199,7 @@ app.get('/agentic-ai', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
   res.render('dashboard', {
-    suppliers,
+    suppliers: allSuppliers(),
     orders: store.orders,
     quoteRequests: store.quoteRequests,
     activity: store.activity.slice(0, 8),
@@ -210,7 +211,8 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/catalog/products', (req, res) => {
-  res.json(products);
+  const query = String(req.query.q || '').trim().toLowerCase();
+  res.json(query ? products.filter((product) => `${product.name} ${product.category}`.toLowerCase().includes(query)) : products);
 });
 
 app.get('/api/suppliers/locations', (req, res) => {
@@ -219,6 +221,14 @@ app.get('/api/suppliers/locations', (req, res) => {
 
 app.get('/api/orders', (req, res) => {
   res.json(store.orders);
+});
+
+app.get('/track', (req, res) => {
+  res.render('track', { orders: store.orders });
+});
+
+app.get('/onboard', (req, res) => {
+  res.render('onboard');
 });
 
 app.get('/api/activity', (req, res) => {
@@ -268,7 +278,7 @@ app.post('/api/quote-request', (req, res) => {
     delivery: req.body.delivery || 'Within 48 hrs',
     materials: req.body.materials || 'Cement, steel, tiles',
     status: 'Quotes received',
-    quotes: suppliers.map((supplier, index) => ({
+    quotes: allSuppliers().map((supplier, index) => ({
       supplierId: supplier.id,
       supplier: supplier.name,
       quote: Math.round(Number(req.body.budgetNumber || 500000) * (0.88 + index * 0.025)),
@@ -286,6 +296,23 @@ app.post('/api/quote-request', (req, res) => {
     message: 'Bulk quotation request captured and routed to MODIT AI negotiators.',
     request: payload,
   });
+});
+
+app.post('/api/suppliers', (req, res) => {
+  const { name, city, contact, categories: categoryText, leadTime } = req.body;
+  if (![name, city, contact, categoryText].every((value) => typeof value === 'string' && value.trim())) {
+    return res.status(400).json({ error: 'Business name, city, contact and categories are required.' });
+  }
+  const supplier = {
+    id: 1000 + store.suppliers.length + 1,
+    name: name.trim(), city: city.trim(), contact: contact.trim(),
+    zone: `${city.trim()} NCR`, rating: 0, delivery: leadTime || '48 hrs', stock: 'Pending verification',
+    focus: categoryText.trim(), quality: 'Verification pending', onboardingStatus: 'Under review', createdAt: new Date().toISOString(),
+  };
+  store.suppliers.unshift(supplier);
+  addActivity('supplier', `${supplier.name} submitted supplier onboarding.`, supplier.id);
+  persistStore();
+  res.status(201).json({ supplier, message: 'Supplier profile submitted. MODIT will verify GST, catalogue and service area.' });
 });
 
 app.post('/api/rfqs/:id/accept', (req, res) => {

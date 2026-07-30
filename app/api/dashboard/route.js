@@ -1,0 +1,1 @@
+import { readStore } from '../../../lib/store'; export const runtime='nodejs'; export async function GET(){const s=readStore();return Response.json({orders:s.orders,rfqs:s.rfqs,activity:s.activity,suppliers:s.suppliers})}

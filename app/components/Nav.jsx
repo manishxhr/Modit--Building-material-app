@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function Nav(){return <header><nav><Link className="brand" href="/"><b>▮▯▮</b> MODIT <small>PROCUREMENT OS</small></Link><div className="navlinks"><Link href="/catalog">Materials</Link><Link href="/ai">AI Copilot</Link><Link href="/orders">Track orders</Link><Link href="/dashboard">Supplier OS</Link></div><Link className="cta" href="/suppliers">Join as supplier →</Link></nav></header>}
