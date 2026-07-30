@@ -6,7 +6,7 @@
     <title>MODIT Supplier Dashboard</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
-  <body>
+  <body class="app-page">
     <%- include('partials/header') %>
 
     <main class="container">
@@ -52,7 +52,20 @@
               <p>Status: <%= order.status %></p>
               <p>Amount: <%= order.amount %></p>
               <p>ETA: <%= order.eta %></p>
+              <button class="btn btn-secondary status-btn" data-order="<%= order.id %>" data-next="<%= order.status === 'Confirmed' ? 'Packed' : order.status === 'Packed' ? 'In transit' : order.status === 'In transit' ? 'Delivered' : '' %>" <%= order.status === 'Delivered' ? 'disabled' : '' %>><%= order.status === 'Delivered' ? 'Delivered' : 'Advance status' %></button>
             </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2>Workflow activity</h2><span class="muted">Created by real actions in the procurement workspace</span></div>
+        <div class="card-grid">
+          <% if (activity.length === 0) { %>
+            <article class="card"><p class="muted">No new activity yet. Create an RFQ from the AI Copilot to see it here.</p></article>
+          <% } %>
+          <% activity.forEach(function(item){ %>
+            <article class="card"><h4><%= item.type.toUpperCase() %></h4><p><%= item.text %></p><p class="muted"><%= new Date(item.at).toLocaleString('en-IN') %></p></article>
           <% }) %>
         </div>
       </section>
@@ -76,4 +89,12 @@
       </section>
     </main>
   </body>
+  <script>
+    document.querySelectorAll('.status-btn').forEach((button) => button.addEventListener('click', async () => {
+      if (!button.dataset.next) return;
+      button.disabled = true;
+      const response = await fetch(`/api/orders/${button.dataset.order}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: button.dataset.next }) });
+      if (response.ok) location.reload(); else { button.disabled = false; alert('Could not update order status.'); }
+    }));
+  </script>
 </html>

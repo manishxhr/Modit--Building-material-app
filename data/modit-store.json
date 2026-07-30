@@ -1,0 +1,105 @@
+{
+  "quoteRequests": [
+    {
+      "id": "RFQ-0001",
+      "project": "North Tower Residences",
+      "city": "Gurugram",
+      "budget": "₹5L-₹10L",
+      "delivery": "Within 48 hrs",
+      "materials": "Cement, steel",
+      "status": "Order confirmed",
+      "quotes": [
+        {
+          "supplierId": 1,
+          "supplier": "MetroBuild Supply",
+          "quote": 440000,
+          "delivery": "24 hrs",
+          "rating": 4.9,
+          "recommendation": "Best overall value"
+        },
+        {
+          "supplierId": 2,
+          "supplier": "NCR Material Hub",
+          "quote": 452500,
+          "delivery": "36 hrs",
+          "rating": 4.8,
+          "recommendation": "Lowest commercial quote"
+        },
+        {
+          "supplierId": 3,
+          "supplier": "Delhi ProBuild",
+          "quote": 465000,
+          "delivery": "48 hrs",
+          "rating": 4.7,
+          "recommendation": "Best stock confidence"
+        },
+        {
+          "supplierId": 4,
+          "supplier": "Axis Construction Exchange",
+          "quote": 477500,
+          "delivery": "30 hrs",
+          "rating": 4.6,
+          "recommendation": "Best stock confidence"
+        }
+      ],
+      "createdAt": "2026-07-30T07:02:06.314Z",
+      "selectedSupplier": "MetroBuild Supply"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-1073",
+      "customer": "North Tower Residences",
+      "status": "Packed",
+      "amount": "₹4,40,000",
+      "eta": "24 hrs",
+      "supplier": "MetroBuild Supply",
+      "invoiceStatus": "GST invoice draft",
+      "createdAt": "2026-07-30T07:02:06.379Z"
+    },
+    {
+      "id": "ORD-1042",
+      "customer": "Apex Builders",
+      "status": "In transit",
+      "amount": "₹4.8L",
+      "eta": "Today"
+    },
+    {
+      "id": "ORD-1048",
+      "customer": "Milan Interiors",
+      "status": "Queued for dispatch",
+      "amount": "₹1.2L",
+      "eta": "Tomorrow"
+    },
+    {
+      "id": "ORD-1061",
+      "customer": "Cityline Estates",
+      "status": "Invoice ready",
+      "amount": "₹6.4L",
+      "eta": "2 days"
+    }
+  ],
+  "activity": [
+    {
+      "id": "ACT-1785394926386",
+      "type": "delivery",
+      "text": "ORD-1073 marked Packed.",
+      "entityId": "ORD-1073",
+      "at": "2026-07-30T07:02:06.386Z"
+    },
+    {
+      "id": "ACT-1785394926379",
+      "type": "order",
+      "text": "ORD-1073 confirmed with MetroBuild Supply.",
+      "entityId": "ORD-1073",
+      "at": "2026-07-30T07:02:06.379Z"
+    },
+    {
+      "id": "ACT-1785394926315",
+      "type": "rfq",
+      "text": "RFQ RFQ-0001 created for North Tower Residences.",
+      "entityId": "RFQ-0001",
+      "at": "2026-07-30T07:02:06.315Z"
+    }
+  ]
+}

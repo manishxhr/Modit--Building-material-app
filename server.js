@@ -1,5 +1,6 @@
 require('dotenv').config();
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -83,13 +84,30 @@ const locations = [
   { city: 'Greater Noida', coverage: 'Medium', focus: 'Planned township and builder projects' },
 ];
 
-const orders = [
+const seedOrders = [
   { id: 'ORD-1042', customer: 'Apex Builders', status: 'In transit', amount: '₹4.8L', eta: 'Today' },
   { id: 'ORD-1048', customer: 'Milan Interiors', status: 'Queued for dispatch', amount: '₹1.2L', eta: 'Tomorrow' },
   { id: 'ORD-1061', customer: 'Cityline Estates', status: 'Invoice ready', amount: '₹6.4L', eta: '2 days' },
 ];
 
-const quoteRequests = [];
+const storePath = path.join(__dirname, 'data', 'modit-store.json');
+const emptyStore = { quoteRequests: [], orders: seedOrders, activity: [] };
+function loadStore() {
+  try { return { ...emptyStore, ...JSON.parse(fs.readFileSync(storePath, 'utf8')) }; }
+  catch (error) { return { ...emptyStore, orders: [...seedOrders] }; }
+}
+let store = loadStore();
+function persistStore() {
+  fs.mkdirSync(path.dirname(storePath), { recursive: true });
+  const tempPath = `${storePath}.tmp`;
+  fs.writeFileSync(tempPath, JSON.stringify(store, null, 2), 'utf8');
+  fs.renameSync(tempPath, storePath);
+}
+function addActivity(type, text, entityId) {
+  store.activity.unshift({ id: `ACT-${Date.now()}`, type, text, entityId, at: new Date().toISOString() });
+  store.activity = store.activity.slice(0, 50);
+}
+function currency(value) { return `₹${Math.round(value).toLocaleString('en-IN')}`; }
 
 function buildRecommendation(projectType, city, budget) {
   const base = [
@@ -181,8 +199,9 @@ app.get('/agentic-ai', (req, res) => {
 app.get('/dashboard', (req, res) => {
   res.render('dashboard', {
     suppliers,
-    orders,
-    quoteRequests,
+    orders: store.orders,
+    quoteRequests: store.quoteRequests,
+    activity: store.activity.slice(0, 8),
   });
 });
 
@@ -199,7 +218,11 @@ app.get('/api/suppliers/locations', (req, res) => {
 });
 
 app.get('/api/orders', (req, res) => {
-  res.json(orders);
+  res.json(store.orders);
+});
+
+app.get('/api/activity', (req, res) => {
+  res.json(store.activity);
 });
 
 app.get('/api/ai/recommendations', (req, res) => {
@@ -212,10 +235,12 @@ app.get('/api/ai/recommendations', (req, res) => {
 
 app.post('/api/ai/boq', (req, res) => {
   const projectType = req.body.projectType || 'residential';
-  const areaSqft = Number(req.body.areaSqft || 1800);
+  const areaSqft = Math.min(Math.max(Number(req.body.areaSqft || 1800), 200), 500000);
   const floors = Number(req.body.floors || 2);
 
-  res.json(buildBoq(projectType, areaSqft, floors));
+  const boq = buildBoq(projectType, areaSqft, floors);
+  boq.source = req.body.requirements ? 'Requirement brief analysed' : 'Project parameters analysed';
+  res.json(boq);
 });
 
 app.post('/api/ai/quote-comparison', (req, res) => {
@@ -236,20 +261,64 @@ app.post('/api/ai/vendor-match', (req, res) => {
 
 app.post('/api/quote-request', (req, res) => {
   const payload = {
-    id: `Q-${quoteRequests.length + 1}`,
+    id: `RFQ-${String(store.quoteRequests.length + 1).padStart(4, '0')}`,
     project: req.body.project || 'New build',
     city: req.body.city || 'Gurugram',
     budget: req.body.budget || '₹5L-₹10L',
     delivery: req.body.delivery || 'Within 48 hrs',
     materials: req.body.materials || 'Cement, steel, tiles',
+    status: 'Quotes received',
+    quotes: suppliers.map((supplier, index) => ({
+      supplierId: supplier.id,
+      supplier: supplier.name,
+      quote: Math.round(Number(req.body.budgetNumber || 500000) * (0.88 + index * 0.025)),
+      delivery: supplier.delivery,
+      rating: supplier.rating,
+      recommendation: index === 0 ? 'Best overall value' : index === 1 ? 'Lowest commercial quote' : 'Best stock confidence',
+    })).sort((a, b) => a.quote - b.quote),
     createdAt: new Date().toISOString(),
   };
 
-  quoteRequests.push(payload);
+  store.quoteRequests.unshift(payload);
+  addActivity('rfq', `RFQ ${payload.id} created for ${payload.project}.`, payload.id);
+  persistStore();
   res.json({
     message: 'Bulk quotation request captured and routed to MODIT AI negotiators.',
     request: payload,
   });
+});
+
+app.post('/api/rfqs/:id/accept', (req, res) => {
+  const rfq = store.quoteRequests.find((item) => item.id === req.params.id);
+  const selectedQuote = rfq && rfq.quotes.find((quote) => quote.supplierId === Number(req.body.supplierId));
+  if (!rfq || !selectedQuote) return res.status(404).json({ error: 'RFQ or supplier quote not found.' });
+  const order = {
+    id: `ORD-${String(1070 + store.orders.length).padStart(4, '0')}`,
+    customer: rfq.project,
+    status: 'Confirmed',
+    amount: currency(selectedQuote.quote),
+    eta: selectedQuote.delivery,
+    supplier: selectedQuote.supplier,
+    invoiceStatus: 'GST invoice draft',
+    createdAt: new Date().toISOString(),
+  };
+  rfq.status = 'Order confirmed';
+  rfq.selectedSupplier = selectedQuote.supplier;
+  store.orders.unshift(order);
+  addActivity('order', `${order.id} confirmed with ${order.supplier}.`, order.id);
+  persistStore();
+  res.status(201).json({ order, message: 'Purchase order confirmed and GST invoice draft created.' });
+});
+
+app.patch('/api/orders/:id/status', (req, res) => {
+  const order = store.orders.find((item) => item.id === req.params.id);
+  const allowed = ['Confirmed', 'Packed', 'In transit', 'Delivered'];
+  if (!order) return res.status(404).json({ error: 'Order not found.' });
+  if (!allowed.includes(req.body.status)) return res.status(400).json({ error: 'Unsupported order status.' });
+  order.status = req.body.status;
+  addActivity('delivery', `${order.id} marked ${order.status}.`, order.id);
+  persistStore();
+  res.json({ order });
 });
 
 app.post('/api/agent/assistant', (req, res) => {
