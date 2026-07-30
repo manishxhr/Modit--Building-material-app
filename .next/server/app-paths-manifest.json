@@ -1,16 +1,1 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/catalog/route": "app/api/catalog/route.js",
-  "/api/dashboard/route": "app/api/dashboard/route.js",
-  "/api/orders/route": "app/api/orders/route.js",
-  "/api/rfqs/[id]/accept/route": "app/api/rfqs/[id]/accept/route.js",
-  "/api/suppliers/route": "app/api/suppliers/route.js",
-  "/api/orders/[id]/route": "app/api/orders/[id]/route.js",
-  "/api/workflow/plan/route": "app/api/workflow/plan/route.js",
-  "/ai/page": "app/ai/page.js",
-  "/catalog/page": "app/catalog/page.js",
-  "/page": "app/page.js",
-  "/orders/page": "app/orders/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/suppliers/page": "app/suppliers/page.js"
-}
+{}
