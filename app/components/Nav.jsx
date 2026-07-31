@@ -6,8 +6,8 @@ const tabs = [
   { href: '/', label: 'Home', icon: '⌂' },
   { href: '/catalog', label: 'Materials', icon: '▦' },
   { href: '/ai', label: 'AI Copilot', icon: '✦' },
+  { href: '/vendors', label: 'Vendors', icon: '⌖' },
   { href: '/orders', label: 'Orders', icon: '▤' },
-  { href: '/dashboard', label: 'Supplier OS', icon: '⌘' },
 ];
 
 export default function Nav(){
@@ -19,6 +19,7 @@ export default function Nav(){
         <div className="navlinks">
           <Link href="/catalog">Materials</Link>
           <Link href="/ai">AI Copilot</Link>
+          <Link href="/vendors">Vendors</Link>
           <Link href="/orders">Track orders</Link>
           <Link href="/dashboard">Supplier OS</Link>
         </div>
