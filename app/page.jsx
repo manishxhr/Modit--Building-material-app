@@ -207,7 +207,7 @@ export default function Home() {
           <div className="grid-3">
             {testimonials.map((item) => (
               <article key={item.name} className="info-card">
-                <p>"{item.quote}"</p>
+                <p>&quot;{item.quote}&quot;</p>
                 <h4>{item.name}</h4>
                 <p className="muted">{item.role}</p>
               </article>
