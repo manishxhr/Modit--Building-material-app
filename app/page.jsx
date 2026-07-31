@@ -15,18 +15,35 @@ const trending = [
   { name: 'CPVC Plumbing Kit', price: '8,450/set', trend: '+2.5%' }
 ];
 
+const userSegments = [
+  'Home Owners',
+  'Builders',
+  'Contractors',
+  'Architects',
+  'Interior Designers',
+  'Retailers',
+  'Suppliers',
+  'Project Managers'
+];
+
+const platformHighlights = [
+  { title: 'Express Delivery Windows', text: 'Urgent dispatch slots with zone-based serviceability checks for Delhi NCR projects.' },
+  { title: 'Transparent Price Grid', text: 'Supplier quotes with GST, MOQ, dispatch SLA and negotiated outcomes in one clean view.' },
+  { title: 'Bulk and Pro Buying', text: 'Contractor and builder workflows for recurring procurement, site delivery and credit handling.' },
+  { title: 'Verified Product Trust', text: 'Authentic brands, standardized specifications and procurement-ready product metadata.' }
+];
+
 export default function Home() {
   return (
     <>
       <Nav />
-      <main className="page">
+      <main className="page home-page">
         <section className="hero-grid">
           <article className="glass-card hero-main">
             <p className="eyebrow">Delhi NCR Building Material Marketplace</p>
             <h1 className="headline">{brand.name}<br />{brand.tagline}</h1>
             <p>
-              MODIT helps home owners, contractors, builders, architects, retailers and suppliers discover, compare,
-              order and manage building materials through one AI-first platform.
+              MODIT helps teams discover, compare, order and track building materials with one AI-first workflow.
             </p>
             <div className="action-row">
               <Link href="/dashboard" className="button primary">Open Home Dashboard</Link>
@@ -42,13 +59,26 @@ export default function Home() {
               <div className="metric"><b>18</b><span>Delhi NCR zones</span></div>
               <div className="metric"><b>12 min</b><span>Avg quote turnaround</span></div>
             </div>
+            <div className="action-row" style={{ marginTop: '14px' }}>
+              {userSegments.slice(0, 4).map((segment) => (
+                <span key={segment} className="badge">{segment}</span>
+              ))}
+            </div>
           </article>
 
           <aside className="glass-card hero-aside">
             <div className="list-tile">
               <p className="eyebrow">How it works</p>
               <h3>Search to Compare to RFQ to Order to Track</h3>
-              <p className="muted">Unified procurement flow with GST-ready records and business payment workflows.</p>
+              <p className="muted">One procurement flow with GST-ready records and payment controls.</p>
+            </div>
+            <div className="list-tile">
+              <p className="eyebrow">Marketplace Highlights</p>
+              <ul>
+                <li>Express and scheduled delivery by zone</li>
+                <li>Transparent pricing and multi-supplier comparison</li>
+                <li>Bulk order support and contractor pricing tiers</li>
+              </ul>
             </div>
             <div className="list-tile">
               <p className="eyebrow">AI Highlights</p>
@@ -56,13 +86,12 @@ export default function Home() {
                 <li>BOQ reader and material planner</li>
                 <li>Quote comparison and negotiation support</li>
                 <li>Supplier matching by location and SLA</li>
-                <li>Voice ordering and smart reorders</li>
               </ul>
             </div>
           </aside>
         </section>
 
-        <section className="section">
+        <section className="section section-categories">
           <div className="section-header">
             <h2>Popular Categories</h2>
             <Link href="/categories" className="badge">View all</Link>
@@ -81,14 +110,30 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section grid-2">
+        <section className="section section-priority-actions">
+          <div className="section-header"><h2>Start Fast</h2></div>
+          <div className="grid-2">
+            <article className="info-card">
+              <h4>Need Quotes Quickly?</h4>
+              <p className="muted">Launch RFQ and get supplier responses with pricing, ETA and GST details.</p>
+              <div className="action-row"><Link href="/rfq" className="button primary">Create RFQ</Link></div>
+            </article>
+            <article className="info-card">
+              <h4>Use Agentic AI</h4>
+              <p className="muted">Ask AI to parse BOQ, match suppliers and propose procurement plans.</p>
+              <div className="action-row"><Link href="/ai" className="button">Open AI Workspace</Link></div>
+            </article>
+          </div>
+        </section>
+
+        <section className="section grid-2 section-market-signals">
           <div>
             <div className="section-header"><h2>Featured Suppliers</h2></div>
             <div className="grid-3">
               {featuredSuppliers.map((supplier) => (
                 <article key={supplier.name} className="supplier-card">
                   <h4>{supplier.name}</h4>
-                  <p className="muted">{supplier.zone} � Rating {supplier.rating}</p>
+                  <p className="muted">{supplier.zone} | Rating {supplier.rating}</p>
                   <p className="muted">Delivery {supplier.eta}</p>
                   <span className="badge">{supplier.badge}</span>
                 </article>
@@ -111,17 +156,41 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section">
+        <section className="section section-why-modit">
           <div className="section-header"><h2>Why MODIT</h2></div>
           <div className="grid-4">
             <article className="info-card"><h4>Real-time Discovery</h4><p className="muted">Find materials, suppliers, ETA and MOQ instantly with global search and smart filters.</p></article>
-            <article className="info-card"><h4>Price Intelligence</h4><p className="muted">Compare supplier pricing, GST impact and discounts in a single procurement matrix.</p></article>
-            <article className="info-card"><h4>Agentic AI</h4><p className="muted">Generate RFQs, read BOQ, negotiate offers, track orders and schedule repeat procurement.</p></article>
-            <article className="info-card"><h4>Operational Control</h4><p className="muted">Dashboard views for buyers, suppliers and admins with clean workflow transparency.</p></article>
+            <article className="info-card"><h4>Price Intelligence</h4><p className="muted">Compare supplier pricing, GST impact, MOQ and discounts in one procurement matrix.</p></article>
+            <article className="info-card"><h4>Fast Delivery Playbooks</h4><p className="muted">Choose urgent or planned delivery windows with serviceability checks for Delhi NCR zones.</p></article>
+            <article className="info-card"><h4>Agentic AI + Operational Control</h4><p className="muted">Generate RFQs, read BOQ, negotiate offers, track orders and run supplier/admin dashboards.</p></article>
           </div>
         </section>
 
-        <section className="section">
+        <section className="section section-marketplace-standards">
+          <div className="section-header"><h2>Marketplace Standards</h2></div>
+          <div className="grid-4">
+            {platformHighlights.map((item) => (
+              <article key={item.title} className="info-card">
+                <h4>{item.title}</h4>
+                <p className="muted">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="section section-stakeholders">
+          <div className="section-header"><h2>Built For Every Stakeholder</h2></div>
+          <div className="grid-4">
+            {userSegments.map((segment) => (
+              <article key={segment} className="info-card">
+                <h4>{segment}</h4>
+                <p className="muted">Dedicated workflows for sourcing, approvals, deliveries and payment control.</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="section section-how-it-works">
           <div className="section-header"><h2>How It Works</h2></div>
           <div className="kpi-strip">
             <div className="kpi"><b>01</b><span>Search materials or upload BOQ</span></div>
@@ -132,7 +201,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section">
+        <section className="section section-testimonials">
           <div className="section-header"><h2>Testimonials</h2></div>
           <div className="grid-3">
             {testimonials.map((item) => (
@@ -145,7 +214,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section">
+        <section className="section section-faqs">
           <div className="section-header"><h2>FAQs</h2></div>
           <div className="grid-2">
             {faqs.map((item) => (
@@ -165,11 +234,21 @@ export default function Home() {
             </div>
             <div>
               <h4>Platform</h4>
-              <p className="muted">Materials � Suppliers � RFQ � Orders � AI Workspace</p>
+              <p className="muted">Materials • Suppliers • RFQ • Orders • AI Workspace</p>
+              <div className="pill-links" style={{ marginTop: '10px' }}>
+                <Link href="/categories" className="badge">Categories</Link>
+                <Link href="/catalog" className="badge">Catalog</Link>
+                <Link href="/comparison" className="badge">Comparison</Link>
+                <Link href="/rfq" className="badge">RFQ</Link>
+                <Link href="/orders" className="badge">Orders</Link>
+                <Link href="/profile" className="badge">Profile</Link>
+                <Link href="/suppliers" className="badge">Supplier Join</Link>
+                <Link href="/admin" className="badge">Admin</Link>
+              </div>
             </div>
             <div>
               <h4>Coverage</h4>
-              <p className="muted">Delhi � Gurugram � Noida � Faridabad � Ghaziabad � Greater Noida</p>
+              <p className="muted">Delhi | Gurugram | Noida | Faridabad | Ghaziabad | Greater Noida</p>
             </div>
           </div>
         </footer>

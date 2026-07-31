@@ -79,9 +79,11 @@ export default function Nav(){
           <Link href="/catalog" className={pathname.startsWith('/catalog') ? 'active' : ''}>Products</Link>
           <Link href="/vendors" className={pathname.startsWith('/vendors') ? 'active' : ''}>Suppliers</Link>
           <Link href="/comparison" className={pathname.startsWith('/comparison') ? 'active' : ''}>Compare</Link>
+          <Link href="/orders" className={pathname.startsWith('/orders') ? 'active' : ''}>Orders</Link>
         </div>
         <div className="nav-right">
           <Link className="search-trigger" href="/catalog" aria-label="Open global search">Search Materials (Ctrl+K)</Link>
+          <Link className="search-trigger" href="/profile" aria-label="Open profile">Profile</Link>
           <Link className="cta" href="/ai">AI Workspace</Link>
         </div>
       </nav>

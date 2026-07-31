@@ -246,7 +246,7 @@ h1, h2, h3, h4 { margin: 0; }
 }
 
 .section {
-  margin-top: 24px;
+  margin-top: 30px;
 }
 
 .section-header {
@@ -254,7 +254,7 @@ h1, h2, h3, h4 { margin: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .section-header h2 {
@@ -277,11 +277,11 @@ h1, h2, h3, h4 { margin: 0; }
 .quote-card,
 .order-card,
 .dashboard-card {
-  padding: 16px;
+  padding: 18px;
   border-radius: 14px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.84);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 18px rgba(13, 38, 76, 0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -423,10 +423,22 @@ th {
   border-top: 1px solid rgba(16, 36, 63, 0.08);
 }
 
+.pill-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill-links .badge {
+  text-decoration: none;
+  background: #f1f6ff;
+  border-color: #dbe8fb;
+}
+
 .ai-fab {
   position: fixed;
   right: 22px;
-  bottom: 24px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
   width: 62px;
   height: 62px;
   border: 0;
@@ -793,11 +805,66 @@ th {
   .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   .navlinks { display: none; }
+
+  .home-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-page .hero-grid { order: 1; }
+  .home-page .section-categories { order: 2; }
+  .home-page .section-priority-actions { order: 3; }
+  .home-page .section-testimonials { order: 4; }
+  .home-page .section-how-it-works { order: 5; }
+  .home-page .section-market-signals { order: 6; }
+  .home-page .section-why-modit { order: 7; }
+  .home-page .section-marketplace-standards { order: 8; }
+  .home-page .section-stakeholders { order: 9; }
+  .home-page .section-faqs { order: 10; }
+  .home-page .footer { order: 11; }
+
+  .home-page .section-categories .category-card:nth-child(n + 7) {
+    display: none;
+  }
+
+  .home-page .section-marketplace-standards .info-card:nth-child(n + 3),
+  .home-page .section-stakeholders .info-card:nth-child(n + 5),
+  .home-page .section-testimonials .info-card:nth-child(n + 3),
+  .home-page .section-faqs .info-card:nth-child(n + 3) {
+    display: none;
+  }
+
+  .home-page .info-card .muted,
+  .home-page .category-card .muted,
+  .home-page .supplier-card .muted {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .home-page .section-priority-actions .button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .section-priority-actions .info-card h4 {
+    margin-bottom: 6px;
+  }
+
+  .section-priority-actions .action-row {
+    margin-top: 12px;
+  }
 }
 
 @media (max-width: 720px) {
   .page,
   .site-nav { width: calc(100% - 22px); }
+
+  .page {
+    padding-top: 12px;
+    padding-bottom: calc(164px + env(safe-area-inset-bottom));
+  }
 
   .site-header {
     position: static;
@@ -809,20 +876,43 @@ th {
   .search-trigger,
   .nav-right .cta { display: none; }
 
-  body {
-    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+  .headline {
+    font-size: clamp(1.7rem, 7vw, 2.2rem);
+    line-height: 1.12;
+  }
+
+  .section {
+    margin-top: 24px;
+  }
+
+  .section-header {
+    margin-bottom: 10px;
+  }
+
+  .category-card,
+  .supplier-card,
+  .product-card,
+  .info-card,
+  .quote-card,
+  .order-card,
+  .dashboard-card,
+  .kpi,
+  .timeline-step,
+  .zone-chip {
+    padding: 14px;
+    border-radius: 12px;
   }
 
   .mobile-action-dock {
     position: fixed;
     left: 10px;
     right: 10px;
-    bottom: calc(64px + env(safe-area-inset-bottom));
+    bottom: calc(72px + env(safe-area-inset-bottom));
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     z-index: 90;
-    padding: 8px;
+    padding: 9px;
     border: 1px solid var(--line);
     border-radius: 13px;
     background: rgba(255, 255, 255, 0.92);
@@ -831,9 +921,11 @@ th {
   }
 
   .mobile-action {
-    padding: 10px 8px;
+    min-height: 44px;
+    padding: 11px 10px;
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.76rem;
+    font-weight: 700;
     background: #fff;
   }
 
@@ -849,8 +941,8 @@ th {
     z-index: 91;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    gap: 6px;
+    padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.97);
   }
@@ -860,8 +952,9 @@ th {
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 6px 4px;
-    font-size: 0.68rem;
+    min-height: 46px;
+    padding: 7px 4px;
+    font-size: 0.7rem;
     color: var(--text-soft);
     background: transparent;
     border-color: transparent;
@@ -875,12 +968,27 @@ th {
 
   .tabicon { font-size: 1rem; }
 
-  .hero-main { padding: 22px; }
+  .hero-main { padding: 20px; }
+  .hero-main p { max-width: 100%; }
+  .action-row { gap: 8px; }
+  .action-row .button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .search-box {
+    padding: 10px;
+  }
+
+  .search-box input {
+    min-height: 42px;
+  }
+
   .hero-metrics { grid-template-columns: 1fr; }
   .grid-4, .kpi-strip { grid-template-columns: 1fr; }
 
   .ai-fab {
-    bottom: calc(126px + env(safe-area-inset-bottom));
+    bottom: calc(14px + env(safe-area-inset-bottom));
     right: 14px;
     width: 56px;
     height: 56px;
