@@ -10,6 +10,13 @@ export default function CatalogPage() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') || '';
+    setQuery(q);
+  }, []);
+
+  useEffect(() => {
     fetch('/api/catalog?q=' + encodeURIComponent(query)).then((response) => response.json()).then(setItems);
   }, [query]);
 
@@ -56,6 +63,10 @@ export default function CatalogPage() {
 
         <section className="section">
           <div className="section-header"><h2>Products</h2><Link className="badge" href="/comparison">Compare suppliers</Link></div>
+          <div className="action-row" style={{ marginBottom: '10px' }}>
+            <Link className="button" href="/comparison">Open Supplier Comparison Table</Link>
+            {items[0] && <Link className="button primary" href={'/product/' + items[0].id}>Open Sample Product PDP</Link>}
+          </div>
           <div className="grid-3">
             {items.map((item) => (
               <article key={item.id} className="product-card">

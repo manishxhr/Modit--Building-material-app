@@ -50,10 +50,11 @@ export default function Home() {
               <Link href="/rfq" className="button">Request Quotation</Link>
               <Link href="/ai" className="button">Launch Agentic AI</Link>
             </div>
-            <div className="search-box" style={{ marginTop: '14px' }}>
+            <form className="search-box" style={{ marginTop: '14px' }} action="/catalog" method="get">
               <span className="badge">Global Search</span>
-              <input placeholder="Search cement, steel, sanitary, tools, suppliers, projects..." />
-            </div>
+              <input name="q" placeholder="Search cement, steel, sanitary, tools, suppliers, projects..." />
+              <button type="submit" className="button">Search</button>
+            </form>
             <div className="hero-metrics">
               <div className="metric"><b>1,200+</b><span>Verified suppliers</span></div>
               <div className="metric"><b>18</b><span>Delhi NCR zones</span></div>
