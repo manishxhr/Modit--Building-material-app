@@ -41,23 +41,63 @@ export default function AIPage() {
   const [matchMaxLeadTime, setMatchMaxLeadTime] = useState('36');
   const [matchQuality, setMatchQuality] = useState('A');
 
+  async function createPlan(payload) {
+    const response = await fetch('/api/workflow/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    setRun(data);
+    if (data?.rfq?.quotes?.[0]) {
+      setNegSupplierId(String(data.rfq.quotes[0].supplierId));
+      setNegTargetPrice(String(data.rfq.quotes[0].quote));
+    }
+    return data;
+  }
+
+  async function runBoqText(text) {
+    setBoqLoading(true);
+    setBoqError('');
+    try {
+      const response = await fetch('/api/workflow/boq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setBoq(null);
+        setBoqError(data.error || 'Could not process BOQ.');
+        return;
+      }
+      setBoq(data);
+    } finally {
+      setBoqLoading(false);
+    }
+  }
+
+  async function runVendorMatchPayload(payload) {
+    setMatchLoading(true);
+    try {
+      const response = await fetch('/api/vendors/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      setMatchResult(await response.json());
+    } finally {
+      setMatchLoading(false);
+    }
+  }
+
   async function submitRun(event) {
     event.preventDefault();
     setLoading(true);
     setNegResult(null);
     const payload = Object.fromEntries(new FormData(event.currentTarget));
     try {
-      const response = await fetch('/api/workflow/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      setRun(data);
-      if (data?.rfq?.quotes?.[0]) {
-        setNegSupplierId(String(data.rfq.quotes[0].supplierId));
-        setNegTargetPrice(String(data.rfq.quotes[0].quote));
-      }
+      await createPlan(payload);
     } finally {
       setLoading(false);
     }
@@ -73,24 +113,7 @@ export default function AIPage() {
 
   async function readBoq(event) {
     event.preventDefault();
-    setBoqLoading(true);
-    setBoqError('');
-    try {
-      const response = await fetch('/api/workflow/boq', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: boqText })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setBoq(null);
-        setBoqError(data.error || 'Could not process BOQ.');
-        return;
-      }
-      setBoq(data);
-    } finally {
-      setBoqLoading(false);
-    }
+    await runBoqText(boqText);
   }
 
   async function runVoice(event) {
@@ -126,22 +149,74 @@ export default function AIPage() {
 
   async function runVendorMatch(event) {
     event.preventDefault();
-    setMatchLoading(true);
+    await runVendorMatchPayload({
+      city: matchCity,
+      category: matchCategory,
+      maxLeadTime: Number(matchMaxLeadTime),
+      quality: matchQuality
+    });
+  }
+
+  async function runBoqDemo() {
+    const demoText = [
+      '65 bags OPC cement',
+      '3 tonnes TMT steel',
+      '1 truck m-sand',
+      '280 sq ft vitrified tiles'
+    ].join('\n');
+    setBoqText(demoText);
+    setBoqFileName('Demo BOQ Scenario');
+    await runBoqText(demoText);
+  }
+
+  async function runNegotiationDemo() {
+    setNegResult(null);
+    let localRun = run;
+    if (!localRun?.rfq?.id) {
+      const demoPayload = {
+        project: 'Demo Tower Phase 1',
+        projectType: 'commercial',
+        city: 'Noida',
+        areaSqft: 5400,
+        floors: 6,
+        budget: 1400000
+      };
+      localRun = await createPlan(demoPayload);
+    }
+    const firstQuote = localRun?.rfq?.quotes?.[0];
+    if (!firstQuote) return;
+    const target = Math.round(firstQuote.quote * 0.93);
+    setNegSupplierId(String(firstQuote.supplierId));
+    setNegTargetPrice(String(target));
+    setNegLoading(true);
     try {
-      const response = await fetch('/api/vendors/match', {
+      const response = await fetch('/api/workflow/negotiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          city: matchCity,
-          category: matchCategory,
-          maxLeadTime: Number(matchMaxLeadTime),
-          quality: matchQuality
+          rfqId: localRun.rfq.id,
+          supplierId: firstQuote.supplierId,
+          targetPrice: target
         })
       });
-      setMatchResult(await response.json());
+      setNegResult(await response.json());
     } finally {
-      setMatchLoading(false);
+      setNegLoading(false);
     }
+  }
+
+  async function runVendorMatchDemo() {
+    const payload = {
+      city: 'Noida',
+      category: 'Cement',
+      maxLeadTime: 36,
+      quality: 'A'
+    };
+    setMatchCity(payload.city);
+    setMatchCategory(payload.category);
+    setMatchMaxLeadTime(String(payload.maxLeadTime));
+    setMatchQuality(payload.quality);
+    await runVendorMatchPayload(payload);
   }
 
   const boqScore = scoreBoqText(boqText);
@@ -150,9 +225,23 @@ export default function AIPage() {
     <>
       <Nav />
       <main className="page">
-        <p className="eyebrow">Agentic AI Workspace</p>
-        <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>AI-First Procurement Operations</h1>
+        <p className="eyebrow">MODIT AI Workspace</p>
+        <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>MODIT AI Procurement Operations</h1>
         <p className="muted">Recommend materials, compare quotes, read BOQ, generate RFQ, negotiate, track and reorder.</p>
+
+        <section className="section">
+          <article className="info-card">
+            <div className="section-header" style={{ marginBottom: '10px' }}>
+              <h2>Recruiter Demo Shortcuts</h2>
+              <span className="badge">Under 30 sec</span>
+            </div>
+            <div className="action-row" style={{ marginTop: 0 }}>
+              <button type="button" className="button" onClick={runBoqDemo}>Run BOQ Demo</button>
+              <button type="button" className="button" onClick={runNegotiationDemo}>Run Negotiation Demo</button>
+              <button type="button" className="button" onClick={runVendorMatchDemo}>Run Vendor Match Demo</button>
+            </div>
+          </article>
+        </section>
 
         <section className="section grid-2">
           <form className="glass-card" style={{ padding: '16px' }} onSubmit={submitRun}>
@@ -203,6 +292,9 @@ export default function AIPage() {
             <div className="timeline" style={{ marginBottom: '10px' }}>
               <div className="timeline-step"><b>Input confidence</b><span>{boqScore.level} ({boqScore.score}%)</span></div>
               <div className="timeline-step"><b>Detected BOQ lines</b><span>{boqScore.lines}</span></div>
+            </div>
+            <div className="action-row" style={{ marginTop: 0, marginBottom: '10px' }}>
+              <button type="button" className="button" onClick={runBoqDemo}>Load and Run Sample BOQ</button>
             </div>
             <button className="button primary" type="submit">{boqLoading ? 'Analyzing...' : 'Analyze BOQ'}</button>
           </form>
@@ -256,6 +348,9 @@ export default function AIPage() {
                   <input type="number" value={negTargetPrice} onChange={(event) => setNegTargetPrice(event.target.value)} min="1" required />
                 </div>
                 <button className="button primary" type="submit">{negLoading ? 'Negotiating...' : 'Run Negotiation'}</button>
+                <div className="action-row" style={{ marginTop: '10px' }}>
+                  <button type="button" className="button" onClick={runNegotiationDemo}>Run One-Click Demo Negotiation</button>
+                </div>
               </>
             )}
           </form>
@@ -309,6 +404,9 @@ export default function AIPage() {
               </div>
             </div>
             <button className="button primary" type="submit">{matchLoading ? 'Scoring vendors...' : 'Find Best Vendors'}</button>
+            <div className="action-row" style={{ marginTop: '10px' }}>
+              <button type="button" className="button" onClick={runVendorMatchDemo}>Run One-Click Vendor Match Demo</button>
+            </div>
           </form>
 
           <div className="glass-card" style={{ padding: '16px' }}>
@@ -338,7 +436,7 @@ export default function AIPage() {
 
         <section className="section grid-2">
           <form className="glass-card" style={{ padding: '16px' }} onSubmit={runVoice}>
-            <h3>Voice and Command AI</h3>
+            <h3>Voice and Command MODIT AI</h3>
             <div className="form-field"><label>Command</label><input value={voice} onChange={(event) => setVoice(event.target.value)} /></div>
             <button className="button primary" type="submit">Run Command</button>
           </form>

@@ -49,7 +49,7 @@ export default function RFQPage() {
 
           <div className="glass-card" style={{ padding: '16px' }}>
             <h3>Quote Output</h3>
-            {!result && <p className="muted">Create an RFQ to see supplier offers, AI recommendation and acceptance workflow.</p>}
+            {!result && <p className="muted">Create an RFQ to see supplier offers, MODIT AI recommendation and acceptance workflow.</p>}
             {result && (
               <>
                 <p className="muted">{result.rfq.id} - {result.summary}</p>

@@ -65,7 +65,7 @@ export default function OrdersPage() {
                 )}
               </article>
             ))}
-            {orders.length === 0 && <article className="info-card">No orders yet. Generate one through RFQ or AI workspace.</article>}
+            {orders.length === 0 && <article className="info-card">No orders yet. Generate one through RFQ or MODIT AI workspace.</article>}
           </div>
         </section>
       </main>

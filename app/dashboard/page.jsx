@@ -87,7 +87,7 @@ export default function DashboardPage() {
                       <span className="badge">{rfq.status}</span>
                     </article>
                   ))}
-                  {data.rfqs.length === 0 && <article className="info-card">No RFQs yet. Use AI workspace to generate one.</article>}
+                  {data.rfqs.length === 0 && <article className="info-card">No RFQs yet. Use MODIT AI workspace to generate one.</article>}
                 </div>
               </div>
             </section>

@@ -988,7 +988,7 @@ th {
   .grid-4, .kpi-strip { grid-template-columns: 1fr; }
 
   .ai-fab {
-    bottom: calc(14px + env(safe-area-inset-bottom));
+    bottom: calc(132px + env(safe-area-inset-bottom));
     right: 14px;
     width: 56px;
     height: 56px;
@@ -998,7 +998,7 @@ th {
     right: 10px;
     left: 10px;
     width: auto;
-    bottom: calc(192px + env(safe-area-inset-bottom));
+    bottom: calc(228px + env(safe-area-inset-bottom));
   }
 
   .zone-map {

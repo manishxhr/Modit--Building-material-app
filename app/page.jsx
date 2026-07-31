@@ -48,7 +48,7 @@ export default function Home() {
             <div className="action-row">
               <Link href="/dashboard" className="button primary">Open Home Dashboard</Link>
               <Link href="/rfq" className="button">Request Quotation</Link>
-              <Link href="/ai" className="button">Launch Agentic AI</Link>
+              <Link href="/ai" className="button">Launch MODIT AI</Link>
             </div>
             <form className="search-box" style={{ marginTop: '14px' }} action="/catalog" method="get">
               <span className="badge">Global Search</span>
@@ -120,9 +120,9 @@ export default function Home() {
               <div className="action-row"><Link href="/rfq" className="button primary">Create RFQ</Link></div>
             </article>
             <article className="info-card">
-              <h4>Use Agentic AI</h4>
-              <p className="muted">Ask AI to parse BOQ, match suppliers and propose procurement plans.</p>
-              <div className="action-row"><Link href="/ai" className="button">Open AI Workspace</Link></div>
+              <h4>Use MODIT AI</h4>
+              <p className="muted">Use MODIT AI to parse BOQ, match suppliers and propose procurement plans.</p>
+              <div className="action-row"><Link href="/ai" className="button">Open MODIT AI Workspace</Link></div>
             </article>
           </div>
         </section>
@@ -163,7 +163,7 @@ export default function Home() {
             <article className="info-card"><h4>Real-time Discovery</h4><p className="muted">Find materials, suppliers, ETA and MOQ instantly with global search and smart filters.</p></article>
             <article className="info-card"><h4>Price Intelligence</h4><p className="muted">Compare supplier pricing, GST impact, MOQ and discounts in one procurement matrix.</p></article>
             <article className="info-card"><h4>Fast Delivery Playbooks</h4><p className="muted">Choose urgent or planned delivery windows with serviceability checks for Delhi NCR zones.</p></article>
-            <article className="info-card"><h4>Agentic AI + Operational Control</h4><p className="muted">Generate RFQs, read BOQ, negotiate offers, track orders and run supplier/admin dashboards.</p></article>
+            <article className="info-card"><h4>MODIT AI + Operational Control</h4><p className="muted">Generate RFQs, read BOQ, negotiate offers, track orders and run supplier/admin dashboards.</p></article>
           </div>
         </section>
 
@@ -235,7 +235,7 @@ export default function Home() {
             </div>
             <div>
               <h4>Platform</h4>
-              <p className="muted">Materials • Suppliers • RFQ • Orders • AI Workspace</p>
+              <p className="muted">Materials • Suppliers • RFQ • Orders • MODIT AI Workspace</p>
               <div className="pill-links" style={{ marginTop: '10px' }}>
                 <Link href="/categories" className="badge">Categories</Link>
                 <Link href="/catalog" className="badge">Catalog</Link>

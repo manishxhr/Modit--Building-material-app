@@ -7,7 +7,7 @@ const tabs = [
   { href: '/', label: 'Home', icon: '⌂' },
   { href: '/dashboard', label: 'Dashboard', icon: '◫' },
   { href: '/catalog', label: 'Materials', icon: '▦' },
-  { href: '/ai', label: 'AI', icon: '✦' },
+  { href: '/ai', label: 'MODIT AI', icon: '✦' },
   { href: '/orders', label: 'Orders', icon: '▤' },
 ];
 
@@ -55,7 +55,7 @@ function getMobileActions(pathname) {
   }
 
   return [
-    { href: '/ai', label: 'Start AI Run', primary: true },
+    { href: '/ai', label: 'Start MODIT AI', primary: true },
     { href: '/dashboard', label: 'Open Dashboard' }
   ];
 }
@@ -84,7 +84,7 @@ export default function Nav(){
         <div className="nav-right">
           <Link className="search-trigger" href="/catalog" aria-label="Open global search">Search Materials (Ctrl+K)</Link>
           <Link className="search-trigger" href="/profile" aria-label="Open profile">Profile</Link>
-          <Link className="cta" href="/ai">AI Workspace</Link>
+          <Link className="cta" href="/ai">MODIT AI</Link>
         </div>
       </nav>
     </header>

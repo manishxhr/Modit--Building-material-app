@@ -71,23 +71,23 @@ export default function AIAssistant() {
       <button
         type="button"
         className="ai-fab"
-        aria-label="Open MODIT AI workspace"
+        aria-label="Open MODIT AI"
         onClick={() => setOpen((state) => !state)}
       >
         <span className="ai-fab-glow" />
-        <span className="ai-fab-core">AI</span>
+        <span className="ai-fab-core">MAI</span>
       </button>
 
       <aside className={'ai-panel' + (open ? ' ai-panel-open' : '')} aria-hidden={!open}>
         <header className="ai-panel-header">
           <div>
-            <p>Agentic AI Workspace</p>
-            <h3>MODIT Copilot</h3>
+            <p>MODIT AI Workspace</p>
+            <h3>MODIT AI Copilot</h3>
           </div>
           <button type="button" className="ai-close" onClick={() => setOpen(false)}>Close</button>
         </header>
 
-        <div className="ai-tabs" role="tablist" aria-label="AI modes">
+        <div className="ai-tabs" role="tablist" aria-label="MODIT AI modes">
           {workspaces.map((item) => (
             <button
               key={item.key}
@@ -122,7 +122,7 @@ export default function AIAssistant() {
         </section>
 
         <footer className="ai-panel-footer">
-          <Link href="/ai" onClick={() => setOpen(false)}>Open Full AI Workspace</Link>
+          <Link href="/ai" onClick={() => setOpen(false)}>Open Full MODIT AI Workspace</Link>
           <Link href="/rfq" onClick={() => setOpen(false)}>Generate RFQ</Link>
         </footer>
       </aside>

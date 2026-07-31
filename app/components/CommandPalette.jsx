@@ -12,9 +12,9 @@ const commands = [
   { id: 'rfq', label: 'Generate RFQ', href: '/rfq', section: 'Procurement' },
   { id: 'orders', label: 'Track Orders', href: '/orders', section: 'Operations' },
   { id: 'vendors', label: 'Supplier Map', href: '/vendors', section: 'Operations' },
-  { id: 'ai', label: 'Open AI Workspace', href: '/ai', section: 'AI' },
-  { id: 'ai-drawer-planner', label: 'Open Floating AI Planner', section: 'AI', action: { type: 'ai-drawer', mode: 'planner', query: 'Generate procurement plan for Delhi commercial project' } },
-  { id: 'ai-drawer-quotes', label: 'Open Floating Quote Analyst', section: 'AI', action: { type: 'ai-drawer', mode: 'quotes', query: 'Compare top 3 cement suppliers in Noida' } },
+  { id: 'ai', label: 'Open MODIT AI Workspace', href: '/ai', section: 'MODIT AI' },
+  { id: 'ai-drawer-planner', label: 'Open Floating MODIT AI Planner', section: 'MODIT AI', action: { type: 'ai-drawer', mode: 'planner', query: 'Generate procurement plan for Delhi commercial project' } },
+  { id: 'ai-drawer-quotes', label: 'Open Floating Quote Analyst', section: 'MODIT AI', action: { type: 'ai-drawer', mode: 'quotes', query: 'Compare top 3 cement suppliers in Noida' } },
   { id: 'shortcut-rfq', label: 'RFQ Shortcut: Launch with BOQ intent', href: '/rfq', section: 'Procurement', action: { type: 'toast', message: 'RFQ shortcut loaded. Paste BOQ and generate quotes.' } },
   { id: 'suppliers', label: 'Supplier Onboarding', href: '/suppliers', section: 'Supplier OS' },
   { id: 'admin', label: 'Admin Dashboard', href: '/admin', section: 'Admin' }
