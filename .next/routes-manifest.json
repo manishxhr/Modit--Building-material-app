@@ -50,6 +50,22 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/api/rfqs/(?<nxtPid>[^/]+?)/accept(?:/)?$"
+    },
+    {
+      "page": "/product/[id]",
+      "regex": "^/product/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/product/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/supplier/[id]",
+      "regex": "^/supplier/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/supplier/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -66,16 +82,40 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
       "page": "/ai",
       "regex": "^/ai(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/ai(?:/)?$"
     },
     {
+      "page": "/cart",
+      "regex": "^/cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cart(?:/)?$"
+    },
+    {
       "page": "/catalog",
       "regex": "^/catalog(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/catalog(?:/)?$"
+    },
+    {
+      "page": "/categories",
+      "regex": "^/categories(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/categories(?:/)?$"
+    },
+    {
+      "page": "/comparison",
+      "regex": "^/comparison(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/comparison(?:/)?$"
     },
     {
       "page": "/dashboard",
@@ -88,6 +128,18 @@
       "regex": "^/orders(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/orders(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/rfq",
+      "regex": "^/rfq(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/rfq(?:/)?$"
     },
     {
       "page": "/suppliers",

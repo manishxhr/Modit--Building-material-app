@@ -1,102 +1,115 @@
 'use client';
+
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Nav from '../components/Nav';
+import { quickActions } from '../components/modit-data';
+import NcrCoverageMap from '../components/NcrCoverageMap';
 
-const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+export default function DashboardPage() {
+  const [data, setData] = useState(null);
 
-export default function Dashboard() {
-  const [d, setD] = useState();
-  const [busy, setBusy] = useState(null);
+  useEffect(() => {
+    fetch('/api/dashboard').then((response) => response.json()).then(setData);
+  }, []);
 
-  async function load() { setD(await fetch('/api/dashboard').then(r => r.json())); }
-  useEffect(() => { load(); }, []);
+  return (
+    <>
+      <Nav />
+      <main className="page">
+        <p className="eyebrow">Home Dashboard</p>
+        <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>Procurement Control Center</h1>
+        <p className="muted">Quick actions, current orders, recent quotes, supplier intelligence and AI suggestions.</p>
 
-  async function advance(order) {
-    const flow = { Confirmed: 'Packed', Packed: 'In transit', 'In transit': 'Delivered' };
-    if (!flow[order.status]) return;
-    await fetch('/api/orders/' + order.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: flow[order.status] }) });
-    load();
-  }
-
-  async function reorder(orderId) {
-    setBusy(orderId);
-    await fetch(`/api/orders/${orderId}/reorder`, { method: 'POST' });
-    await load();
-    setBusy(null);
-  }
-
-  return <>
-    <Nav />
-    <main className="app">
-      <p className="eyebrow">SUPPLIER OS / INVENTORY · LEADS · OPERATIONS</p>
-      <h1>A control room for<br /><i>every delivery promise.</i></h1>
-      {!d ? <div className="empty"><b>Loading operations…</b></div> : <>
-        <div className="metrics">
-          <article><b>{d.orders.length}</b><span>live orders</span></article>
-          <article><b>{d.rfqs.length}</b><span>RFQs generated</span></article>
-          <article><b>{d.suppliers.length}</b><span>supplier profiles</span></article>
-          <article><b>{d.leads.length}</b><span>open leads</span></article>
-        </div>
-
-        <section className="dashsection">
-          <h2>AI demand forecast — next 30 days</h2>
-          <div className="forecastgrid">
-            {d.demandForecast.map(f => (
-              <article key={f.category} className="forecastcard">
-                <span>{f.category}</span>
-                <b className={f.change >= 0 ? 'up' : 'down'}>{f.change >= 0 ? '+' : ''}{f.change}%</b>
-              </article>
+        <section className="section">
+          <div className="grid-4">
+            {quickActions.map((item) => (
+              <Link key={item.href} href={item.href} className="dashboard-card">
+                <h4>{item.title}</h4>
+                <p className="muted">{item.subtitle}</p>
+              </Link>
             ))}
           </div>
         </section>
 
-        <section className="dashsection">
-          <h2>Order operations</h2>
-          {d.orders.map(x => (
-            <article className="dashrow" key={x.id}>
-              <div><b>{x.id}</b><small>{x.project}{x.repeatOf ? ` · repeat of ${x.repeatOf}` : ''}</small></div>
-              <span>{x.supplier}</span>
-              <span>{x.status}</span>
-              <span>ETA {x.eta}</span>
-              <button className="button" disabled={x.status === 'Delivered'} onClick={() => advance(x)}>{x.status === 'Delivered' ? 'Delivered' : 'Advance status →'}</button>
-            </article>
-          ))}
-        </section>
+        {!data ? (
+          <section className="section">
+            <div className="grid-4" style={{ marginBottom: '12px' }}>
+              <div className="skeleton skeleton-card" />
+              <div className="skeleton skeleton-card" />
+              <div className="skeleton skeleton-card" />
+              <div className="skeleton skeleton-card" />
+            </div>
+            <div className="timeline">
+              <div className="skeleton skeleton-row" />
+              <div className="skeleton skeleton-row" />
+              <div className="skeleton skeleton-row" />
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="section">
+              <div className="kpi-strip">
+                <div className="kpi"><b>{data.orders.length}</b><span>Current Orders</span></div>
+                <div className="kpi"><b>{data.rfqs.length}</b><span>Recent Quotes</span></div>
+                <div className="kpi"><b>{data.suppliers.length}</b><span>Nearby Suppliers</span></div>
+                <div className="kpi"><b>{data.reorderCandidates.length}</b><span>Smart Reorders</span></div>
+                <div className="kpi"><b>{data.activity.length}</b><span>AI Suggestions</span></div>
+              </div>
+            </section>
 
-        <section className="dashsection">
-          <h2>Smart reorder reminders</h2>
-          {d.reorderCandidates.length === 0
-            ? <p className="muted">No delivered orders are due for a repeat restock yet.</p>
-            : d.reorderCandidates.map(x => (
-              <article className="dashrow reminderrow" key={x.id}>
-                <div><b>{x.project}</b><small>Last delivered via {x.supplier} · {inr(x.amount)}</small></div>
-                <span className="chip">restock due</span>
-                <button className="button primary" disabled={busy === x.id} onClick={() => reorder(x.id)}>{busy === x.id ? 'Placing…' : 'Trigger repeat order →'}</button>
-              </article>
-            ))}
-        </section>
+            <section className="section grid-2">
+              <div>
+                <div className="section-header"><h2>Current Orders</h2><Link className="badge" href="/orders">View all</Link></div>
+                <div className="timeline">
+                  {data.orders.slice(0, 4).map((order) => (
+                    <article key={order.id} className="timeline-step">
+                      <div>
+                        <b><span className="dot" />{order.id}</b>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>{order.project} - {order.supplier}</p>
+                      </div>
+                      <span className="badge">{order.status}</span>
+                    </article>
+                  ))}
+                  {data.orders.length === 0 && <article className="info-card">No active orders yet.</article>}
+                </div>
+              </div>
 
-        <section className="dashsection">
-          <h2>Leads — RFQs awaiting conversion</h2>
-          {d.leads.length === 0
-            ? <p className="muted">No open leads. New AI Copilot runs will appear here.</p>
-            : d.leads.map(x => (
-              <article className="dashrow" key={x.id}>
-                <div><b>{x.id}</b><small>{x.project} · {x.city}</small></div>
-                <span>{x.materials.length} materials</span>
-                <span>{x.status}</span>
-                <small className="muted">{new Date(x.createdAt).toLocaleDateString('en-IN')}</small>
-              </article>
-            ))}
-        </section>
+              <div>
+                <div className="section-header"><h2>Recent Quotes</h2><Link className="badge" href="/rfq">Create RFQ</Link></div>
+                <div className="timeline">
+                  {data.rfqs.slice(0, 4).map((rfq) => (
+                    <article key={rfq.id} className="timeline-step">
+                      <div>
+                        <b>{rfq.id}</b>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>{rfq.project} - {rfq.city}</p>
+                      </div>
+                      <span className="badge">{rfq.status}</span>
+                    </article>
+                  ))}
+                  {data.rfqs.length === 0 && <article className="info-card">No RFQs yet. Use AI workspace to generate one.</article>}
+                </div>
+              </div>
+            </section>
 
-        <section className="dashsection">
-          <h2>AI workflow activity</h2>
-          {d.activity.length ? d.activity.map(x => (
-            <article className="dashrow" key={x.id}><b>{x.type.toUpperCase()}</b><span>{x.text}</span><small>{new Date(x.at).toLocaleString('en-IN')}</small></article>
-          )) : <p className="muted">New procurement actions will appear here.</p>}
-        </section>
-      </>}
-    </main>
-  </>;
+            <section className="section grid-2">
+              <div className="info-card">
+                <h3>Price Trends</h3>
+                <p className="muted">Cement +1.8% - Steel +0.9% - Sand -0.4% - Tiles +1.2%</p>
+              </div>
+              <div className="info-card">
+                <h3>Delivery Status</h3>
+                <p className="muted">92% on-time dispatch this week across Delhi NCR.</p>
+              </div>
+            </section>
+
+            <section className="section">
+              <div className="section-header"><h2>Delhi NCR Coverage Map</h2><span className="badge">Live readiness</span></div>
+              <NcrCoverageMap suppliers={data.suppliers} />
+            </section>
+          </>
+        )}
+      </main>
+    </>
+  );
 }

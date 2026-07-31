@@ -1,61 +1,62 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { brand } from './modit-data';
 
 const tabs = [
   { href: '/', label: 'Home', icon: '⌂' },
+  { href: '/dashboard', label: 'Dashboard', icon: '◫' },
   { href: '/catalog', label: 'Materials', icon: '▦' },
-  { href: '/ai', label: 'AI Copilot', icon: '✦' },
-  { href: '/vendors', label: 'Vendors', icon: '⌖' },
+  { href: '/ai', label: 'AI', icon: '✦' },
   { href: '/orders', label: 'Orders', icon: '▤' },
 ];
 
 function getMobileActions(pathname) {
   if (pathname.startsWith('/ai')) {
     return [
-      { href: '/orders', label: 'Track active orders', primary: true },
-      { href: '/vendors', label: 'Match vendors' }
+      { href: '/rfq', label: 'Generate RFQ', primary: true },
+      { href: '/orders', label: 'Track Orders' }
     ];
   }
 
   if (pathname.startsWith('/orders')) {
     return [
-      { href: '/ai', label: 'Start new procurement', primary: true },
-      { href: '/dashboard', label: 'Open control center' }
-    ];
-  }
-
-  if (pathname.startsWith('/vendors')) {
-    return [
-      { href: '/ai', label: 'Run AI comparison', primary: true },
-      { href: '/suppliers', label: 'Add supplier' }
-    ];
-  }
-
-  if (pathname.startsWith('/catalog')) {
-    return [
-      { href: '/ai', label: 'Build quote workflow', primary: true },
-      { href: '/vendors', label: 'Find suppliers' }
+      { href: '/cart', label: 'Go To Cart', primary: true },
+      { href: '/dashboard', label: 'Control Center' }
     ];
   }
 
   if (pathname.startsWith('/dashboard')) {
     return [
-      { href: '/orders', label: 'Track delivery', primary: true },
-      { href: '/suppliers', label: 'Onboard supplier' }
+      { href: '/comparison', label: 'Compare Prices', primary: true },
+      { href: '/vendors', label: 'Supplier Map' }
     ];
   }
 
-  if (pathname.startsWith('/suppliers')) {
+  if (pathname.startsWith('/vendors') || pathname.startsWith('/comparison')) {
     return [
-      { href: '/dashboard', label: 'View supplier OS', primary: true },
-      { href: '/vendors', label: 'See vendor map' }
+      { href: '/suppliers', label: 'Onboard Supplier', primary: true },
+      { href: '/rfq', label: 'Request Quote' }
+    ];
+  }
+
+  if (pathname.startsWith('/catalog') || pathname.startsWith('/categories')) {
+    return [
+      { href: '/rfq', label: 'Request Quote', primary: true },
+      { href: '/comparison', label: 'Compare Prices' }
+    ];
+  }
+
+  if (pathname.startsWith('/suppliers') || pathname.startsWith('/profile')) {
+    return [
+      { href: '/dashboard', label: 'Supplier Dashboard', primary: true },
+      { href: '/admin', label: 'Admin View' }
     ];
   }
 
   return [
-    { href: '/ai', label: 'Start procurement run', primary: true },
-    { href: '/dashboard', label: 'Open control center' }
+    { href: '/ai', label: 'Start AI Run', primary: true },
+    { href: '/dashboard', label: 'Open Dashboard' }
   ];
 }
 
@@ -63,20 +64,29 @@ export default function Nav(){
   const pathname = usePathname();
   const mobileActions = getMobileActions(pathname);
   return <>
-    <header>
-      <nav>
-        <Link className="brand" href="/"><b>▮▯▮</b> MODIT <small>PROCUREMENT OS</small></Link>
+    <header className="site-header">
+      <nav className="site-nav">
+        <Link className="brand" href="/">
+          <span className="brand-icon">M</span>
+          <span>
+            {brand.name}
+            <small>{brand.tagline}</small>
+          </span>
+        </Link>
         <div className="navlinks">
-          <Link href="/catalog">Materials</Link>
-          <Link href="/ai">AI Copilot</Link>
-          <Link href="/vendors">Vendors</Link>
-          <Link href="/orders">Track orders</Link>
-          <Link href="/dashboard">Supplier OS</Link>
+          <Link href="/dashboard" className={pathname.startsWith('/dashboard') ? 'active' : ''}>Dashboard</Link>
+          <Link href="/categories" className={pathname.startsWith('/categories') ? 'active' : ''}>Categories</Link>
+          <Link href="/catalog" className={pathname.startsWith('/catalog') ? 'active' : ''}>Products</Link>
+          <Link href="/vendors" className={pathname.startsWith('/vendors') ? 'active' : ''}>Suppliers</Link>
+          <Link href="/comparison" className={pathname.startsWith('/comparison') ? 'active' : ''}>Compare</Link>
         </div>
-        <Link className="cta" href="/suppliers">Join as supplier →</Link>
+        <div className="nav-right">
+          <Link className="search-trigger" href="/catalog" aria-label="Open global search">Search Materials (Ctrl+K)</Link>
+          <Link className="cta" href="/ai">AI Workspace</Link>
+        </div>
       </nav>
     </header>
-    <div className="mobile-control-center" aria-label="Mobile quick actions">
+    <div className="mobile-action-dock" aria-label="Mobile quick actions">
       {mobileActions.map((action) => {
         const active = action.href === '/' ? pathname === '/' : pathname.startsWith(action.href);
         return (
@@ -84,7 +94,7 @@ export default function Nav(){
             key={action.href}
             href={action.href}
             className={
-              'mobile-control' +
+              'mobile-action' +
               (action.primary ? ' mobile-control-primary' : '') +
               (active ? ' mobile-control-active' : '')
             }
@@ -94,7 +104,7 @@ export default function Nav(){
         );
       })}
     </div>
-    <nav className="tabbar" aria-label="Primary">
+    <nav className="mobile-tabbar" aria-label="Primary">
       {tabs.map(t => {
         const active = t.href === '/' ? pathname === '/' : pathname.startsWith(t.href);
         return (

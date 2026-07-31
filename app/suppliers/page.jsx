@@ -1,1 +1,63 @@
-'use client';import{useState}from'react';import Nav from '../components/Nav';export default function Suppliers(){const[result,setResult]=useState();async function submit(e){e.preventDefault();const r=await fetch('/api/suppliers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(e.currentTarget)))});setResult(await r.json())}return <><Nav/><main className="app"><section className="apphero"><div><p className="eyebrow">SUPPLIER NETWORK / ONBOARDING</p><h1>Bring your inventory<br/>to <i>active sites.</i></h1><p>Get verified, publish your service area and receive procurement opportunities aligned to your category and delivery capability.</p></div><div className="aihint">1. Profile submitted<br/>2. GST & catalogue review<br/>3. Zone activation<br/>4. Qualified RFQs</div></section><section className="workflow"><form onSubmit={submit}><p className="eyebrow">BUSINESS PROFILE</p><label>Business name<input required name="name" placeholder="Sharma Buildmart"/></label><div className="twocol"><label>Primary city<select name="city"><option>Gurugram</option><option>Noida</option><option>Delhi</option><option>Faridabad</option><option>Ghaziabad</option></select></label><label>Dispatch SLA<select name="delivery"><option value="24">24 hours</option><option value="36">36 hours</option><option value="48">48 hours</option></select></label></div><label>Business contact<input required name="contact" placeholder="name@company.com or +91…"/></label><label>Material categories<textarea required name="categories" placeholder="Cement, steel, aggregate, tools…"/></label><button className="button primary">Submit supplier profile →</button></form><div className="results">{!result?<div className="empty"><b>Ready for verification.</b><p>Your submitted profile will be saved to MODIT’s supplier network.</p></div>:result.error?<p className="notice">{result.error}</p>:<><p className="eyebrow">APPLICATION RECEIVED</p><h2>{result.supplier.name}</h2><p>{result.message}</p><div className="notice">Status: <b>{result.supplier.status}</b><br/>Zone: {result.supplier.city}<br/>Categories: {result.supplier.focus}</div></>}</div></section></main></>}
+'use client';
+
+import { useState } from 'react';
+import Nav from '../components/Nav';
+import { notifyToast } from '../components/ToastHost';
+
+export default function SuppliersPage() {
+  const [result, setResult] = useState(null);
+
+  async function submit(event) {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget));
+    const response = await fetch('/api/suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    setResult(data);
+    notifyToast(response.ok ? 'Supplier profile submitted for verification.' : (data.error || 'Submission failed.'), response.ok ? 'success' : 'warn');
+  }
+
+  return (
+    <>
+      <Nav />
+      <main className="page">
+        <p className="eyebrow">Supplier Onboarding</p>
+        <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>Join the MODIT Marketplace</h1>
+
+        <section className="section grid-2">
+          <form className="glass-card" style={{ padding: '16px' }} onSubmit={submit}>
+            <h3>Business Profile</h3>
+            <div className="form-field"><label>Business Name</label><input name="name" required /></div>
+            <div className="grid-2">
+              <div className="form-field"><label>Primary City</label><select name="city"><option>Gurugram</option><option>Noida</option><option>Delhi</option><option>Faridabad</option><option>Ghaziabad</option><option>Greater Noida</option></select></div>
+              <div className="form-field"><label>Dispatch SLA (hours)</label><input name="delivery" defaultValue="36" /></div>
+            </div>
+            <div className="form-field"><label>Contact</label><input name="contact" required /></div>
+            <div className="form-field"><label>Categories</label><textarea name="categories" required placeholder="Cement, Steel, Tiles, Plumbing" /></div>
+            <button className="button primary" type="submit">Submit Supplier Profile</button>
+          </form>
+
+          <div className="glass-card" style={{ padding: '16px' }}>
+            <h3>Verification Workflow</h3>
+            <div className="timeline">
+              <div className="timeline-step"><b>Step 1</b><span>Profile submission</span></div>
+              <div className="timeline-step"><b>Step 2</b><span>GST and catalog validation</span></div>
+              <div className="timeline-step"><b>Step 3</b><span>Coverage zone approval</span></div>
+              <div className="timeline-step"><b>Step 4</b><span>RFQ lead activation</span></div>
+            </div>
+            {result && result.error && <p className="muted" style={{ marginTop: '12px' }}>{result.error}</p>}
+            {result && result.supplier && (
+              <article className="info-card" style={{ marginTop: '12px' }}>
+                <h4>{result.supplier.name}</h4>
+                <p className="muted">{result.message}</p>
+              </article>
+            )}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
