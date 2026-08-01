@@ -7,7 +7,7 @@ const tabs = [
   { href: '/', label: 'Home', icon: '⌂' },
   { href: '/dashboard', label: 'Dashboard', icon: '◫' },
   { href: '/catalog', label: 'Materials', icon: '▦' },
-  { href: '/ai', label: 'MODIT AI', icon: '✦' },
+  { href: '/cart', label: 'Go To Cart', icon: '▣' },
   { href: '/orders', label: 'Orders', icon: '▤' },
 ];
 
