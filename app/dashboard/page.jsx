@@ -5,13 +5,41 @@ import Link from 'next/link';
 import Nav from '../components/Nav';
 import { quickActions } from '../components/modit-data';
 import NcrCoverageMap from '../components/NcrCoverageMap';
+import { notifyToast } from '../components/ToastHost';
 
 export default function DashboardPage() {
   const [data, setData] = useState(null);
+  const [syncAt, setSyncAt] = useState('');
 
   useEffect(() => {
-    fetch('/api/dashboard').then((response) => response.json()).then(setData);
+    let active = true;
+
+    async function load() {
+      const response = await fetch('/api/dashboard');
+      const payload = await response.json();
+      if (!active) return;
+      setData(payload);
+      setSyncAt(new Date(payload.generatedAt || Date.now()).toLocaleTimeString('en-IN'));
+    }
+
+    load();
+    const timer = setInterval(load, 30000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
   }, []);
+
+  async function placeReorder(orderId) {
+    const response = await fetch('/api/orders/' + orderId + '/reorder', { method: 'POST' });
+    const payload = await response.json();
+    notifyToast(response.ok ? (payload.message || 'Reorder placed.') : (payload.error || 'Reorder failed.'), response.ok ? 'success' : 'warn');
+    if (response.ok) {
+      const refresh = await fetch('/api/dashboard').then((r) => r.json());
+      setData(refresh);
+      setSyncAt(new Date(refresh.generatedAt || Date.now()).toLocaleTimeString('en-IN'));
+    }
+  }
 
   return (
     <>
@@ -20,6 +48,7 @@ export default function DashboardPage() {
         <p className="eyebrow">Home Dashboard</p>
         <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>Procurement Control Center</h1>
         <p className="muted">Quick actions, current orders, recent quotes, supplier intelligence and AI suggestions.</p>
+        {syncAt && <p className="muted" style={{ marginTop: '4px' }}>Live sync: {syncAt} (auto-refresh every 30s)</p>}
 
         <section className="section">
           <div className="grid-4">
@@ -55,6 +84,36 @@ export default function DashboardPage() {
                 <div className="kpi"><b>{data.suppliers.length}</b><span>Nearby Suppliers</span></div>
                 <div className="kpi"><b>{data.reorderCandidates.length}</b><span>Smart Reorders</span></div>
                 <div className="kpi"><b>{data.activity.length}</b><span>AI Suggestions</span></div>
+              </div>
+            </section>
+
+            <section className="section grid-2">
+              <div className="info-card">
+                <h3>Live Delivery Tracking</h3>
+                <div className="timeline" style={{ marginTop: '10px' }}>
+                  <div className="timeline-step"><b>Confirmed</b><span>{data.liveTracking.confirmed}</span></div>
+                  <div className="timeline-step"><b>Packed</b><span>{data.liveTracking.packed}</span></div>
+                  <div className="timeline-step"><b>In transit</b><span>{data.liveTracking.inTransit}</span></div>
+                  <div className="timeline-step"><b>Delivered</b><span>{data.liveTracking.delivered}</span></div>
+                </div>
+              </div>
+
+              <div className="info-card">
+                <h3>Smart Reorder Reminders</h3>
+                <div className="timeline" style={{ marginTop: '10px' }}>
+                  {data.reorderAlerts.length === 0 && <div className="timeline-step"><span>No reorder alerts right now.</span></div>}
+                  {data.reorderAlerts.map((alert) => (
+                    <div key={alert.orderId} className="timeline-step">
+                      <div>
+                        <b>{alert.orderId}</b>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>{alert.project} | {alert.reason}</p>
+                      </div>
+                      <button className="button" type="button" onClick={() => placeReorder(alert.orderId)}>
+                        Reorder Rs {alert.suggestedTopUp.toLocaleString('en-IN')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
 

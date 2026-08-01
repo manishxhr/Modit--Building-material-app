@@ -6,6 +6,12 @@ import { notifyToast } from '../components/ToastHost';
 
 export default function SuppliersPage() {
   const [result, setResult] = useState(null);
+  const [aiConsole, setAiConsole] = useState(null);
+
+  async function loadConsole() {
+    const data = await fetch('/api/dashboard').then((response) => response.json());
+    setAiConsole(data);
+  }
 
   async function submit(event) {
     event.preventDefault();
@@ -56,6 +62,44 @@ export default function SuppliersPage() {
               </article>
             )}
           </div>
+        </section>
+
+        <section className="section grid-2">
+          <article className="glass-card" style={{ padding: '16px' }}>
+            <div className="section-header">
+              <h3>Supplier MODIT AI Console</h3>
+              <button type="button" className="button" onClick={loadConsole}>Refresh AI Signals</button>
+            </div>
+            {!aiConsole && <p className="muted">Load AI signals to preview inventory demand, dynamic pricing and lead readiness.</p>}
+            {aiConsole && (
+              <div className="timeline">
+                <div className="timeline-step"><b>Open RFQ Leads</b><span>{aiConsole.leads.length}</span></div>
+                <div className="timeline-step"><b>Marketplace Orders</b><span>{aiConsole.orders.length}</span></div>
+                <div className="timeline-step"><b>Active Suppliers</b><span>{aiConsole.suppliers.length}</span></div>
+                <div className="timeline-step"><b>Demand Signals</b><span>{aiConsole.demandForecast.length}</span></div>
+              </div>
+            )}
+          </article>
+
+          <article className="glass-card" style={{ padding: '16px' }}>
+            <h3>AI Inventory and Pricing Suggestions</h3>
+            {!aiConsole && <p className="muted">Use MODIT AI console to generate category-level prediction and pricing guidance.</p>}
+            {aiConsole && (
+              <div className="timeline">
+                {aiConsole.demandForecast.slice(0, 5).map((item) => (
+                  <div key={item.category} className="timeline-step">
+                    <div>
+                      <b>{item.category}</b>
+                      <p className="muted" style={{ margin: '4px 0 0' }}>
+                        AI suggests {item.change > 0 ? 'stock-up and optimize dispatch' : 'keep lean inventory and promo pricing'}
+                      </p>
+                    </div>
+                    <span className="badge">{item.change > 0 ? '+' : ''}{item.change}% demand</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </article>
         </section>
       </main>
     </>
