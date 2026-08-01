@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Nav from '../components/Nav';
 
 const inr = (numberValue) => 'Rs ' + Number(numberValue || 0).toLocaleString('en-IN');
@@ -16,6 +17,7 @@ function scoreBoqText(text) {
 }
 
 export default function AIPage() {
+  const router = useRouter();
   const [run, setRun] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -40,6 +42,17 @@ export default function AIPage() {
   const [matchCategory, setMatchCategory] = useState('Cement');
   const [matchMaxLeadTime, setMatchMaxLeadTime] = useState('36');
   const [matchQuality, setMatchQuality] = useState('A');
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [autopilotMode, setAutopilotMode] = useState('assist');
+  const [autopilotLoading, setAutopilotLoading] = useState(false);
+  const [autopilotResult, setAutopilotResult] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    setSpeechSupported(Boolean(SpeechRecognition));
+  }, []);
 
   async function createPlan(payload) {
     const response = await fetch('/api/workflow/plan', {
@@ -125,6 +138,74 @@ export default function AIPage() {
     });
     const data = await response.json();
     setVoiceResponse(data.reply || data.error || 'No response');
+    await executeVoiceAction(data);
+  }
+
+  async function executeVoiceAction(data) {
+    if (data.action === 'reorder' && data.orderId) {
+      const response = await fetch('/api/orders/' + data.orderId + '/reorder', { method: 'POST' });
+      const result = await response.json();
+      if (response.ok) {
+        setVoiceResponse((data.reply || '') + ' Reorder executed: ' + (result.message || 'success'));
+      }
+      return;
+    }
+
+    if (data.action === 'compare' && Array.isArray(data.matches) && data.matches.length > 0) {
+      setMatchResult({
+        criteria: { city: matchCity, category: matchCategory, maxLeadTime: Number(matchMaxLeadTime), quality: matchQuality },
+        matches: data.matches
+      });
+      return;
+    }
+
+    if (data.action === 'track') {
+      router.push('/orders');
+    }
+  }
+
+  function startVoiceCapture() {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceResponse('Voice capture is not supported in this browser.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setListening(true);
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || '';
+      setVoice(transcript);
+      setListening(false);
+    };
+    recognition.onerror = () => {
+      setListening(false);
+      setVoiceResponse('Unable to capture voice input. Please try again.');
+    };
+    recognition.onend = () => setListening(false);
+    recognition.start();
+  }
+
+  async function runAutopilot(event) {
+    event.preventDefault();
+    setAutopilotLoading(true);
+    try {
+      const payload = Object.fromEntries(new FormData(event.currentTarget));
+      payload.execute = autopilotMode === 'execute';
+      const response = await fetch('/api/workflow/autopilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      setAutopilotResult(data);
+    } finally {
+      setAutopilotLoading(false);
+    }
   }
 
   async function runNegotiation(event) {
@@ -438,11 +519,60 @@ export default function AIPage() {
           <form className="glass-card" style={{ padding: '16px' }} onSubmit={runVoice}>
             <h3>Voice and Command MODIT AI</h3>
             <div className="form-field"><label>Command</label><input value={voice} onChange={(event) => setVoice(event.target.value)} /></div>
-            <button className="button primary" type="submit">Run Command</button>
+            <div className="action-row" style={{ marginTop: 0 }}>
+              <button className="button primary" type="submit">Run Command</button>
+              <button className="button" type="button" onClick={startVoiceCapture} disabled={!speechSupported || listening}>
+                {listening ? 'Listening...' : 'Capture Voice'}
+              </button>
+            </div>
+            {!speechSupported && <p className="muted" style={{ marginTop: '8px' }}>Voice capture requires browser SpeechRecognition support.</p>}
           </form>
           <div className="glass-card" style={{ padding: '16px' }}>
             <h3>Assistant Response</h3>
             <p className="muted">{voiceResponse || 'Ask to compare quotes, track order, or repeat procurement.'}</p>
+          </div>
+        </section>
+
+        <section className="section grid-2">
+          <form className="glass-card" style={{ padding: '16px' }} onSubmit={runAutopilot}>
+            <h3>Agentic Autopilot</h3>
+            <p className="muted">One run can search suppliers, create RFQ, negotiate, and optionally place the order.</p>
+            <div className="form-field"><label>Project</label><input name="project" defaultValue="Noida Tower Autopilot" required /></div>
+            <div className="grid-2">
+              <div className="form-field"><label>Project Type</label><select name="projectType"><option value="residential">Residential</option><option value="commercial">Commercial</option></select></div>
+              <div className="form-field"><label>City</label><select name="city"><option>Delhi</option><option>Gurugram</option><option>Noida</option><option>Faridabad</option><option>Ghaziabad</option><option>Greater Noida</option></select></div>
+              <div className="form-field"><label>Area (sq ft)</label><input name="areaSqft" type="number" defaultValue="3800" min="200" /></div>
+              <div className="form-field"><label>Budget</label><input name="budget" type="number" defaultValue="1100000" min="100000" /></div>
+            </div>
+            <div className="form-field"><label>Mode</label><select value={autopilotMode} onChange={(event) => setAutopilotMode(event.target.value)}><option value="assist">Assist only</option><option value="execute">Execute and place order</option></select></div>
+            <button className="button primary" type="submit">{autopilotLoading ? 'Running...' : 'Run Autopilot'}</button>
+          </form>
+
+          <div className="glass-card" style={{ padding: '16px' }}>
+            <h3>Autopilot Timeline</h3>
+            {!autopilotResult && <p className="muted">Run autopilot to see end-to-end procurement steps with negotiated output.</p>}
+            {autopilotResult && (
+              <>
+                <p className="muted">{autopilotResult.summary}</p>
+                <div className="timeline">
+                  {(autopilotResult.timeline || []).map((item) => (
+                    <div key={item.step + item.at} className="timeline-step">
+                      <div>
+                        <b>{item.step}</b>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>{item.detail}</p>
+                      </div>
+                      <span>{new Date(item.at).toLocaleTimeString('en-IN')}</span>
+                    </div>
+                  ))}
+                </div>
+                {autopilotResult.order && (
+                  <article className="info-card" style={{ marginTop: '10px' }}>
+                    <h4>{autopilotResult.order.id}</h4>
+                    <p className="muted">Order placed with {autopilotResult.order.supplier} for {inr(autopilotResult.order.amount)}.</p>
+                  </article>
+                )}
+              </>
+            )}
           </div>
         </section>
       </main>

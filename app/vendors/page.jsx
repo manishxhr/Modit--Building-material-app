@@ -50,6 +50,7 @@ export default function VendorsPage() {
               <div className="form-field"><label>Max Lead Time</label><input type="number" name="maxLeadTime" defaultValue="48" /></div>
               <div className="form-field"><label>Min Quality</label><select name="quality"><option value="">Any</option><option value="A">A</option><option value="A+">A+</option></select></div>
             </div>
+            <div className="form-field"><label>Quantity</label><input type="number" name="quantity" defaultValue="100" min="1" /></div>
             <button className="button primary" type="submit">Find Matches</button>
           </form>
 
@@ -64,6 +65,9 @@ export default function VendorsPage() {
                     <div>
                       <b>{supplier.name}</b>
                       <p className="muted" style={{ margin: '4px 0 0' }}>{supplier.city} - {supplier.focus}</p>
+                      <p className="muted" style={{ margin: '4px 0 0' }}>
+                        Est. Rs {supplier.pricePerUnit?.toLocaleString('en-IN')} / unit | Total Rs {supplier.expectedTotal?.toLocaleString('en-IN')}
+                      </p>
                     </div>
                     <span className="badge">{supplier.matchScore}%</span>
                   </div>
