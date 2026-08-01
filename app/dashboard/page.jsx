@@ -41,6 +41,17 @@ export default function DashboardPage() {
     }
   }
 
+  async function regenerateRfq(orderId) {
+    const response = await fetch('/api/orders/' + orderId + '/rerfq', { method: 'POST' });
+    const payload = await response.json();
+    notifyToast(response.ok ? (payload.message || 'RFQ regenerated.') : (payload.error || 'RFQ regeneration failed.'), response.ok ? 'success' : 'warn');
+    if (response.ok) {
+      const refresh = await fetch('/api/dashboard').then((r) => r.json());
+      setData(refresh);
+      setSyncAt(new Date(refresh.generatedAt || Date.now()).toLocaleTimeString('en-IN'));
+    }
+  }
+
   return (
     <>
       <Nav />
@@ -101,16 +112,24 @@ export default function DashboardPage() {
               <div className="info-card">
                 <h3>Smart Reorder Reminders</h3>
                 <div className="timeline" style={{ marginTop: '10px' }}>
-                  {data.reorderAlerts.length === 0 && <div className="timeline-step"><span>No reorder alerts right now.</span></div>}
-                  {data.reorderAlerts.map((alert) => (
-                    <div key={alert.orderId} className="timeline-step">
+                  {data.reorderInsights.length === 0 && <div className="timeline-step"><span>No reorder alerts right now.</span></div>}
+                  {data.reorderInsights.map((alert) => (
+                    <div key={alert.orderId + alert.material} className="timeline-step">
                       <div>
-                        <b>{alert.orderId}</b>
-                        <p className="muted" style={{ margin: '4px 0 0' }}>{alert.project} | {alert.reason}</p>
+                        <b>{alert.project}</b>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>{alert.material} | {alert.phase}</p>
+                        <p className="muted" style={{ margin: '4px 0 0' }}>
+                          Burn {alert.dailyBurn}/day | Qty {alert.currentQty} | {alert.daysLeft} day(s) left
+                        </p>
                       </div>
-                      <button className="button" type="button" onClick={() => placeReorder(alert.orderId)}>
-                        Reorder Rs {alert.suggestedTopUp.toLocaleString('en-IN')}
-                      </button>
+                      <div className="action-row" style={{ marginTop: 0 }}>
+                        <button className="button" type="button" onClick={() => placeReorder(alert.orderId)}>
+                          Reorder {alert.suggestedTopUp}
+                        </button>
+                        <button className="button" type="button" onClick={() => regenerateRfq(alert.orderId)}>
+                          Regenerate RFQ
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

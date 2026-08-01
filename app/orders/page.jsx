@@ -8,9 +8,13 @@ const inr = (value) => 'Rs ' + Number(value).toLocaleString('en-IN');
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [invoice, setInvoice] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/orders').then((response) => response.json()).then(setOrders);
+    fetch('/api/orders')
+      .then((response) => response.json())
+      .then((data) => setOrders(data))
+      .finally(() => setLoading(false));
   }, []);
 
   async function loadInvoice(id) {
@@ -31,6 +35,7 @@ export default function OrdersPage() {
 
         <section className="section">
           <div className="timeline">
+            {loading && <article className="info-card">Loading order timeline...</article>}
             {orders.map((order) => (
               <article key={order.id} className="order-card">
                 <div className="section-header">
@@ -72,7 +77,7 @@ export default function OrdersPage() {
                 )}
               </article>
             ))}
-            {orders.length === 0 && <article className="info-card">No orders yet. Generate one through RFQ or MODIT AI workspace.</article>}
+            {!loading && orders.length === 0 && <article className="info-card">No orders yet. Generate one through RFQ or MODIT AI workspace.</article>}
           </div>
         </section>
       </main>

@@ -1,5 +1,6 @@
 import { readStore } from '../../../../lib/store';
 export const runtime = 'nodejs';
+// Prototype AI matcher: weighted rule-based score using price, delivery, quality, and rating.
 
 const qualityRank = { 'B+': 1, 'A': 2, 'A+': 3 };
 

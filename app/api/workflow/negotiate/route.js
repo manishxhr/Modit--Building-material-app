@@ -1,5 +1,6 @@
 import { readStore, writeStore, addActivity, money } from '../../../../lib/store';
 export const runtime = 'nodejs';
+// Prototype AI negotiation: deterministic floor/counter logic over live RFQ quotes.
 
 export async function POST(request) {
   const body = await request.json();

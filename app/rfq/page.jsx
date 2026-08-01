@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Nav from '../components/Nav';
 import { notifyToast } from '../components/ToastHost';
 
 export default function RFQPage() {
+  const router = useRouter();
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [confirmingSupplier, setConfirmingSupplier] = useState('');
+  const [acceptedOrder, setAcceptedOrder] = useState(null);
 
   async function submitRFQ(event) {
     event.preventDefault();
@@ -21,6 +25,27 @@ export default function RFQPage() {
     setResult(data);
     notifyToast(response.ok ? 'RFQ generated with supplier offers.' : (data.error || 'Unable to generate RFQ.'), response.ok ? 'success' : 'warn');
     setBusy(false);
+  }
+
+  async function confirmOrder(supplierId) {
+    if (!result?.rfq?.id) return;
+    setConfirmingSupplier(String(supplierId));
+    try {
+      const response = await fetch('/api/rfqs/' + result.rfq.id + '/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supplierId })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        notifyToast(data.error || 'Unable to confirm order.', 'warn');
+        return;
+      }
+      setAcceptedOrder(data.order);
+      notifyToast(data.message || 'Order confirmed from RFQ.', 'success');
+    } finally {
+      setConfirmingSupplier('');
+    }
   }
 
   return (
@@ -60,10 +85,30 @@ export default function RFQPage() {
                         <b>{quote.supplier}</b>
                         <p className="muted" style={{ margin: '4px 0 0' }}>{quote.reason}</p>
                       </div>
-                      <span className="badge">Rs {quote.quote.toLocaleString('en-IN')}</span>
+                      <div className="action-row" style={{ marginTop: 0 }}>
+                        <span className="badge">Rs {quote.quote.toLocaleString('en-IN')}</span>
+                        <button
+                          type="button"
+                          className="button"
+                          onClick={() => confirmOrder(quote.supplierId)}
+                          disabled={confirmingSupplier === String(quote.supplierId)}
+                        >
+                          {confirmingSupplier === String(quote.supplierId) ? 'Confirming...' : 'Confirm Order'}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
+                {acceptedOrder && (
+                  <article className="info-card" style={{ marginTop: '12px' }}>
+                    <h4>{acceptedOrder.id} Confirmed</h4>
+                    <p className="muted">Supplier: {acceptedOrder.supplier} | Amount: Rs {acceptedOrder.amount.toLocaleString('en-IN')}</p>
+                    <div className="action-row" style={{ marginTop: '10px' }}>
+                      <button type="button" className="button primary" onClick={() => router.push('/orders')}>Track In Orders</button>
+                      <button type="button" className="button" onClick={() => router.push('/dashboard')}>View Dashboard</button>
+                    </div>
+                  </article>
+                )}
               </>
             )}
           </div>

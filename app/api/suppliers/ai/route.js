@@ -1,6 +1,7 @@
 import { readStore, writeStore, addActivity } from '../../../../lib/store';
 
 export const runtime = 'nodejs';
+// Prototype supplier AI operations: rule-based lead/inventory/pricing controls on workspace data.
 
 function ensureOps(store) {
   if (!store.supplierOps) {

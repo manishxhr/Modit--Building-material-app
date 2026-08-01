@@ -1,5 +1,6 @@
 import { readStore, money } from '../../../../lib/store';
 export const runtime = 'nodejs';
+// Prototype voice assistant: intent parsing with deterministic command routing.
 
 const cities = ['Gurugram', 'Noida', 'Delhi', 'Faridabad', 'Ghaziabad', 'Greater Noida'];
 

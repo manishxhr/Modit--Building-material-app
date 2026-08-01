@@ -7,11 +7,23 @@ import Nav from '../components/Nav';
 import { categories } from '../components/modit-data';
 import { notifyToast } from '../components/ToastHost';
 
+const bootItems = categories.map((item, index) => ({
+  id: 'sample-' + item.key,
+  name: item.name + ' Sample',
+  category: item.name,
+  unit: 'standard unit',
+  price: 500 + index * 110,
+  stock: 'Loading live stock',
+  leadTime: 'Loading ETA'
+}));
+
 export default function CatalogPage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [items, setItems] = useState(bootItems);
   const [addingId, setAddingId] = useState('');
+  const [loading, setLoading] = useState(true);
 
   async function addToCart(productId) {
     setAddingId(productId);
@@ -64,8 +76,15 @@ export default function CatalogPage() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/catalog?q=' + encodeURIComponent(query)).then((response) => response.json()).then(setItems);
-  }, [query]);
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    if (selectedCategory) params.set('category', selectedCategory);
+    fetch('/api/catalog?' + params.toString())
+      .then((response) => response.json())
+      .then((data) => setItems(data))
+      .finally(() => setLoading(false));
+  }, [query, selectedCategory]);
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -91,14 +110,18 @@ export default function CatalogPage() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search by material, brand, category, SKU, supplier..."
             />
-            <span className="badge">{items.length} results</span>
+            <select value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)}>
+              <option value="">All Categories</option>
+              {categories.map((item) => <option key={item.key} value={item.name}>{item.name}</option>)}
+            </select>
+            <span className="badge">{loading ? 'Loading...' : items.length + ' results'}</span>
           </div>
         </section>
 
         <section className="section">
           <div className="section-header"><h2>Categories</h2><Link className="badge" href="/categories">Browse all</Link></div>
           <div className="grid-4">
-            {categories.slice(0, 8).map((item) => (
+            {categories.map((item) => (
               <article key={item.key} className="category-card">
                 <div className="category-top"><span className="icon-pill">{item.icon}</span><span className="badge">Filter</span></div>
                 <h4 style={{ marginTop: '10px' }}>{item.name}</h4>
@@ -123,18 +146,18 @@ export default function CatalogPage() {
                 <h3 style={{ marginTop: '8px' }}>Rs {item.price.toLocaleString('en-IN')}</h3>
                 <p className="muted">Delivery ETA {item.leadTime}</p>
                 <div className="action-row" style={{ marginTop: '10px' }}>
-                  <button className="button" type="button" onClick={() => addToCart(item.id)} disabled={addingId === item.id}>
+                  <button className="button" type="button" onClick={() => addToCart(item.id)} disabled={addingId === item.id || item.id.startsWith('sample-')}>
                     {addingId === item.id ? 'Adding...' : 'Add to Cart'}
                   </button>
-                  <button className="button" type="button" onClick={() => buyNow(item.id)} disabled={addingId === item.id + '-buy'}>
+                  <button className="button" type="button" onClick={() => buyNow(item.id)} disabled={addingId === item.id + '-buy' || item.id.startsWith('sample-')}>
                     {addingId === item.id + '-buy' ? 'Starting...' : 'Buy Now'}
                   </button>
-                  <Link className="button primary" href={'/product/' + item.id}>View Product</Link>
+                  {!item.id.startsWith('sample-') && <Link className="button primary" href={'/product/' + item.id}>View Product</Link>}
                 </div>
               </article>
             ))}
           </div>
-          {items.length === 0 && <article className="info-card">No products found for this query.</article>}
+          {!loading && items.length === 0 && <article className="info-card">No products found for this query.</article>}
         </section>
 
         {grouped.length > 0 && (

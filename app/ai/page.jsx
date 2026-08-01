@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '../components/Nav';
+import { categories } from '../components/modit-data';
 
 const inr = (numberValue) => 'Rs ' + Number(numberValue || 0).toLocaleString('en-IN');
 
@@ -42,6 +43,7 @@ export default function AIPage() {
   const [matchCategory, setMatchCategory] = useState('Cement');
   const [matchMaxLeadTime, setMatchMaxLeadTime] = useState('36');
   const [matchQuality, setMatchQuality] = useState('A');
+  const [matchQuantity, setMatchQuantity] = useState('100');
   const [speechSupported, setSpeechSupported] = useState(false);
   const [listening, setListening] = useState(false);
   const [autopilotMode, setAutopilotMode] = useState('assist');
@@ -234,7 +236,8 @@ export default function AIPage() {
       city: matchCity,
       category: matchCategory,
       maxLeadTime: Number(matchMaxLeadTime),
-      quality: matchQuality
+      quality: matchQuality,
+      quantity: Number(matchQuantity)
     });
   }
 
@@ -291,12 +294,14 @@ export default function AIPage() {
       city: 'Noida',
       category: 'Cement',
       maxLeadTime: 36,
-      quality: 'A'
+      quality: 'A',
+      quantity: 100
     };
     setMatchCity(payload.city);
     setMatchCategory(payload.category);
     setMatchMaxLeadTime(String(payload.maxLeadTime));
     setMatchQuality(payload.quality);
+    setMatchQuantity(String(payload.quantity));
     await runVendorMatchPayload(payload);
   }
 
@@ -468,7 +473,7 @@ export default function AIPage() {
               <div className="form-field">
                 <label>Category</label>
                 <select value={matchCategory} onChange={(event) => setMatchCategory(event.target.value)}>
-                  <option>Cement</option><option>Steel</option><option>Sand & Aggregate</option><option>Bricks & Blocks</option><option>Tiles & Finishes</option><option>Plumbing</option><option>Electrical</option>
+                  {categories.map((item) => <option key={item.key}>{item.name}</option>)}
                 </select>
               </div>
               <div className="form-field">
@@ -482,6 +487,10 @@ export default function AIPage() {
                   <option value="A">A</option>
                   <option value="A+">A+</option>
                 </select>
+              </div>
+              <div className="form-field">
+                <label>Quantity</label>
+                <input type="number" min="1" value={matchQuantity} onChange={(event) => setMatchQuantity(event.target.value)} />
               </div>
             </div>
             <button className="button primary" type="submit">{matchLoading ? 'Scoring vendors...' : 'Find Best Vendors'}</button>

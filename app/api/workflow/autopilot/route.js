@@ -1,6 +1,7 @@
 import { readStore, writeStore, addActivity, money } from '../../../../lib/store';
 
 export const runtime = 'nodejs';
+// Prototype agentic orchestration: deterministic multi-step flow over in-memory workspace data.
 
 function nowIso(offsetMs = 0) {
   return new Date(Date.now() + offsetMs).toISOString();

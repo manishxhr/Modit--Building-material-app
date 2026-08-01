@@ -2,12 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import Nav from '../components/Nav';
+import { categories } from '../components/modit-data';
+import NcrCoverageMap from '../components/NcrCoverageMap';
 
 const cityList = ['Gurugram', 'Noida', 'Delhi', 'Faridabad', 'Ghaziabad', 'Greater Noida'];
-const categoryList = ['Cement', 'Steel', 'Sand & Aggregate', 'Bricks & Blocks', 'Tiles & Finishes', 'Plumbing', 'Electrical'];
+const categoryList = categories.map((item) => item.name);
+const bootSuppliers = [
+  { id: 1, name: 'MetroBuild Supply', city: 'Gurugram', rating: 4.9, delivery: 24, quality: 'A+', focus: 'Cement, steel and structural material' },
+  { id: 2, name: 'NCR Material Hub', city: 'Noida', rating: 4.8, delivery: 36, quality: 'A', focus: 'Bulk contractor pricing and core shell packages' },
+  { id: 3, name: 'Delhi ProBuild', city: 'Delhi', rating: 4.7, delivery: 48, quality: 'A', focus: 'Finishes, architectural and facade packages' },
+  { id: 4, name: 'Axis Construction Exchange', city: 'Faridabad', rating: 4.6, delivery: 30, quality: 'A', focus: 'Multi-site procurement and jobsite tools' },
+  { id: 5, name: 'Ghaziabad Build Depot', city: 'Ghaziabad', rating: 4.5, delivery: 40, quality: 'A', focus: 'Warehouse-led MEP and civil supply' },
+  { id: 6, name: 'Greater Noida Supply Co.', city: 'Greater Noida', rating: 4.4, delivery: 44, quality: 'B+', focus: 'Township and infrastructure fulfillment' }
+];
 
 export default function VendorsPage() {
-  const [dashboard, setDashboard] = useState(null);
+  const [dashboard, setDashboard] = useState({ suppliers: bootSuppliers });
   const [matches, setMatches] = useState(null);
 
   useEffect(() => {
@@ -39,6 +49,11 @@ export default function VendorsPage() {
               return <article key={city} className="supplier-card"><h4>{city}</h4><p className="muted">{count} suppliers</p><span className="badge">Coverage zone</span></article>;
             })}
           </div>
+        </section>
+
+        <section className="section">
+          <div className="section-header"><h2>Delhi NCR Supply Map</h2><span className="badge">Pinned zones</span></div>
+          <NcrCoverageMap suppliers={dashboard?.suppliers || bootSuppliers} />
         </section>
 
         <section className="section grid-2">

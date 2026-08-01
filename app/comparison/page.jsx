@@ -2,12 +2,22 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Nav from '../components/Nav';
+import { categories } from '../components/modit-data';
+
+const bootPayload = {
+  rows: [
+    { supplierId: 1, supplier: 'MetroBuild Supply', unitPrice: 372, quantity: 100, subtotal: 37200, gst: 6696, logistics: 2360, total: 46256, deliveryHours: 24, quality: 'A+', rating: 4.9, aiReason: 'Bootstrapped preview while live quote table loads.' },
+    { supplierId: 2, supplier: 'NCR Material Hub', unitPrice: 365, quantity: 100, subtotal: 36500, gst: 6570, logistics: 2540, total: 45610, deliveryHours: 36, quality: 'A', rating: 4.8, aiReason: 'Bootstrapped preview while live quote table loads.' },
+    { supplierId: 5, supplier: 'Ghaziabad Build Depot', unitPrice: 359, quantity: 100, subtotal: 35900, gst: 6462, logistics: 2600, total: 44962, deliveryHours: 40, quality: 'A', rating: 4.5, aiReason: 'Bootstrapped preview while live quote table loads.' }
+  ],
+  recommended: { supplier: 'Ghaziabad Build Depot', total: 44962, deliveryHours: 40 }
+};
 
 export default function ComparisonPage() {
   const [city, setCity] = useState('');
   const [category, setCategory] = useState('Cement');
   const [quantity, setQuantity] = useState('100');
-  const [payload, setPayload] = useState(null);
+  const [payload, setPayload] = useState(bootPayload);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
@@ -48,13 +58,7 @@ export default function ComparisonPage() {
             <div className="form-field">
               <label>Category</label>
               <select value={category} onChange={(event) => setCategory(event.target.value)}>
-                <option>Cement</option>
-                <option>Steel</option>
-                <option>Sand & Aggregate</option>
-                <option>Bricks & Blocks</option>
-                <option>Tiles & Finishes</option>
-                <option>Plumbing</option>
-                <option>Electrical</option>
+                {categories.map((item) => <option key={item.key}>{item.name}</option>)}
               </select>
             </div>
             <div className="form-field">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Nav from '../components/Nav';
 import { notifyToast } from '../components/ToastHost';
+import { categories } from '../components/modit-data';
 
 export default function SuppliersPage() {
   const [result, setResult] = useState(null);
@@ -171,7 +172,7 @@ export default function SuppliersPage() {
               <div className="form-field">
                 <label>Inventory Category</label>
                 <select value={targetCategory} onChange={(event) => setTargetCategory(event.target.value)}>
-                  <option>Cement</option><option>Steel</option><option>Sand & Aggregate</option><option>Bricks & Blocks</option><option>Tiles & Finishes</option><option>Plumbing</option><option>Electrical</option>
+                  {categories.map((item) => <option key={item.key}>{item.name}</option>)}
                 </select>
               </div>
               <div className="form-field">

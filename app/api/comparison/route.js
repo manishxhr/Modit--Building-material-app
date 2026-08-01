@@ -1,6 +1,7 @@
 import { readStore } from '../../../lib/store';
 
 export const runtime = 'nodejs';
+// Prototype comparison engine: computes landed quote rows from live supplier/product seed data.
 
 function estimateUnitPrice(basePrice, supplier) {
   const deliveryFactor = supplier.delivery <= 24 ? 1.04 : supplier.delivery <= 36 ? 1.01 : 0.98;
