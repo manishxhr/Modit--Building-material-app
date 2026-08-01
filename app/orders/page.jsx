@@ -45,6 +45,13 @@ export default function OrdersPage() {
                   <div className="info-card"><h4>Amount</h4><p className="muted">{inr(order.amount)}</p></div>
                   <div className="info-card"><h4>Credit</h4><p className="muted">{order.credit}</p></div>
                 </div>
+                {(order.customerName || order.paymentMethod || order.items) && (
+                  <div className="grid-3" style={{ marginTop: '10px' }}>
+                    <div className="info-card"><h4>Buyer</h4><p className="muted">{order.customerName || 'Project team'}</p></div>
+                    <div className="info-card"><h4>Payment</h4><p className="muted">{order.paymentMethod || 'PO'}</p></div>
+                    <div className="info-card"><h4>Items</h4><p className="muted">{order.items ? order.items.length : 'N/A'}</p></div>
+                  </div>
+                )}
                 <div className="action-row">
                   <button className="button" onClick={() => loadInvoice(order.id)}>
                     {invoice[order.id] ? 'Hide GST Invoice' : 'View GST Invoice'}

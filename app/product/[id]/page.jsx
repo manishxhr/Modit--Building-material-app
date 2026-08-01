@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { readStore } from '../../../lib/store';
 import Nav from '../../components/Nav';
+import AddToCartButton from '../../components/AddToCartButton';
 
 export default function ProductDetailPage({ params }) {
   const store = readStore();
@@ -31,11 +32,9 @@ export default function ProductDetailPage({ params }) {
           <article className="glass-card" style={{ padding: '16px' }}>
             <h3>Supplier Comparison</h3>
             <p className="muted">Compare supplier pricing, quality, MOQ, discount and delivery confidence for this product.</p>
-            <div className="action-row">
-              <Link href="/comparison" className="button">Compare</Link>
-              <Link href="/cart" className="button">Add to Cart</Link>
-              <Link href="/rfq" className="button primary">Buy Now</Link>
-            </div>
+            <div className="action-row"><Link href="/comparison" className="button">Compare</Link></div>
+            <AddToCartButton productId={product.id} fullWidth />
+            <div className="action-row"><Link href="/rfq" className="button primary">Buy via RFQ</Link></div>
             <article className="info-card" style={{ marginTop: '12px' }}>
               <h4>AI Recommendation</h4>
               <p className="muted">Choose a supplier with less than 36 hours dispatch and quality grade A or above for predictable site continuity.</p>

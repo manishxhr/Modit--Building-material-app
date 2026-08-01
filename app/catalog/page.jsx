@@ -4,10 +4,33 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Nav from '../components/Nav';
 import { categories } from '../components/modit-data';
+import { notifyToast } from '../components/ToastHost';
 
 export default function CatalogPage() {
   const [query, setQuery] = useState('');
   const [items, setItems] = useState([]);
+  const [addingId, setAddingId] = useState('');
+
+  async function addToCart(productId) {
+    setAddingId(productId);
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity: 1 })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        notifyToast(data.error || 'Could not add to cart.', 'warn');
+        return;
+      }
+      notifyToast('Added to cart. Items: ' + data.summary.itemCount, 'success');
+    } catch {
+      notifyToast('Network error while adding to cart.', 'warn');
+    } finally {
+      setAddingId('');
+    }
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -76,7 +99,9 @@ export default function CatalogPage() {
                 <h3 style={{ marginTop: '8px' }}>Rs {item.price.toLocaleString('en-IN')}</h3>
                 <p className="muted">Delivery ETA {item.leadTime}</p>
                 <div className="action-row" style={{ marginTop: '10px' }}>
-                  <Link className="button" href="/cart">Add to Cart</Link>
+                  <button className="button" type="button" onClick={() => addToCart(item.id)} disabled={addingId === item.id}>
+                    {addingId === item.id ? 'Adding...' : 'Add to Cart'}
+                  </button>
                   <Link className="button primary" href={'/product/' + item.id}>View Product</Link>
                 </div>
               </article>

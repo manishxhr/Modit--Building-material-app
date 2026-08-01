@@ -77,6 +77,7 @@ export default function Nav(){
           <Link href="/dashboard" className={pathname.startsWith('/dashboard') ? 'active' : ''}>Dashboard</Link>
           <Link href="/categories" className={pathname.startsWith('/categories') ? 'active' : ''}>Categories</Link>
           <Link href="/catalog" className={pathname.startsWith('/catalog') ? 'active' : ''}>Products</Link>
+          <Link href="/cart" className={pathname.startsWith('/cart') ? 'active' : ''}>Cart</Link>
           <Link href="/vendors" className={pathname.startsWith('/vendors') ? 'active' : ''}>Suppliers</Link>
           <Link href="/comparison" className={pathname.startsWith('/comparison') ? 'active' : ''}>Compare</Link>
           <Link href="/orders" className={pathname.startsWith('/orders') ? 'active' : ''}>Orders</Link>

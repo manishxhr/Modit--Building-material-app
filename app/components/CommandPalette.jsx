@@ -7,6 +7,7 @@ const commands = [
   { id: 'home', label: 'Go to Home', href: '/', section: 'Navigation' },
   { id: 'dashboard', label: 'Open Dashboard', href: '/dashboard', section: 'Navigation' },
   { id: 'catalog', label: 'Search Materials', href: '/catalog', section: 'Discovery' },
+  { id: 'cart', label: 'Open Cart and Checkout', href: '/cart', section: 'Procurement' },
   { id: 'categories', label: 'Browse Categories', href: '/categories', section: 'Discovery' },
   { id: 'comparison', label: 'Compare Supplier Quotes', href: '/comparison', section: 'Procurement' },
   { id: 'rfq', label: 'Generate RFQ', href: '/rfq', section: 'Procurement' },
