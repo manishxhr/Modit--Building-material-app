@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Nav from '../components/Nav';
 import { categories } from '../components/modit-data';
 import { notifyToast } from '../components/ToastHost';
 
 export default function CatalogPage() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [items, setItems] = useState([]);
   const [addingId, setAddingId] = useState('');
@@ -27,6 +29,28 @@ export default function CatalogPage() {
       notifyToast('Added to cart. Items: ' + data.summary.itemCount, 'success');
     } catch {
       notifyToast('Network error while adding to cart.', 'warn');
+    } finally {
+      setAddingId('');
+    }
+  }
+
+  async function buyNow(productId) {
+    setAddingId(productId + '-buy');
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity: 1 })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        notifyToast(data.error || 'Could not start checkout.', 'warn');
+        return;
+      }
+      notifyToast('Item moved to checkout.', 'success');
+      router.push('/cart');
+    } catch {
+      notifyToast('Network error while starting checkout.', 'warn');
     } finally {
       setAddingId('');
     }
@@ -101,6 +125,9 @@ export default function CatalogPage() {
                 <div className="action-row" style={{ marginTop: '10px' }}>
                   <button className="button" type="button" onClick={() => addToCart(item.id)} disabled={addingId === item.id}>
                     {addingId === item.id ? 'Adding...' : 'Add to Cart'}
+                  </button>
+                  <button className="button" type="button" onClick={() => buyNow(item.id)} disabled={addingId === item.id + '-buy'}>
+                    {addingId === item.id + '-buy' ? 'Starting...' : 'Buy Now'}
                   </button>
                   <Link className="button primary" href={'/product/' + item.id}>View Product</Link>
                 </div>

@@ -21,6 +21,7 @@ export default function CartPage() {
   const [checkout, setCheckout] = useState(defaultCheckout);
   const [loading, setLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const hasItems = cart.items.length > 0;
 
@@ -93,6 +94,42 @@ export default function CartPage() {
     }
   }
 
+  async function placeExpressOrder() {
+    if (!hasItems) return;
+    if (!checkout.customerName || !checkout.phone) {
+      notifyToast('Add buyer name and phone for express checkout.', 'warn');
+      return;
+    }
+
+    setPlacing(true);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: checkout.customerName,
+          phone: checkout.phone,
+          paymentMethod: checkout.paymentMethod,
+          project: checkout.project,
+          city: checkout.city,
+          address: checkout.address,
+          couponCode: checkout.couponCode
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        notifyToast(data.error || 'Express checkout failed.', 'warn');
+        return;
+      }
+      notifyToast(data.message || 'Order placed successfully.', 'success');
+      setCheckout(defaultCheckout);
+      await loadCart();
+      router.push('/orders');
+    } finally {
+      setPlacing(false);
+    }
+  }
+
   const summary = useMemo(() => cart.summary || { subtotal: 0, gst: 0, delivery: 0, total: 0, itemCount: 0 }, [cart.summary]);
 
   return (
@@ -141,6 +178,7 @@ export default function CartPage() {
 
           <form className="glass-card" style={{ padding: '16px' }} onSubmit={placeOrder}>
             <h3>Checkout</h3>
+            <p className="muted" style={{ marginTop: '6px' }}>Flow: Cart -&gt; Buyer -&gt; Payment -&gt; Confirm</p>
             <div className="timeline" style={{ marginBottom: '10px' }}>
               <div className="timeline-step"><span>Items</span><b>{summary.itemCount}</b></div>
               <div className="timeline-step"><span>Subtotal</span><b>Rs {Number(summary.subtotal || 0).toLocaleString('en-IN')}</b></div>
@@ -149,19 +187,11 @@ export default function CartPage() {
               <div className="timeline-step"><span>Total</span><b>Rs {Number(summary.total || 0).toLocaleString('en-IN')}</b></div>
             </div>
 
-            <div className="form-field"><label>Project / Order Label</label><input value={checkout.project} onChange={(event) => setCheckout((v) => ({ ...v, project: event.target.value }))} required /></div>
             <div className="grid-2">
               <div className="form-field"><label>Buyer Name</label><input value={checkout.customerName} onChange={(event) => setCheckout((v) => ({ ...v, customerName: event.target.value }))} required /></div>
               <div className="form-field"><label>Phone</label><input value={checkout.phone} onChange={(event) => setCheckout((v) => ({ ...v, phone: event.target.value }))} required /></div>
             </div>
-            <div className="form-field"><label>Delivery Address</label><textarea value={checkout.address} onChange={(event) => setCheckout((v) => ({ ...v, address: event.target.value }))} required /></div>
             <div className="grid-2">
-              <div className="form-field">
-                <label>City</label>
-                <select value={checkout.city} onChange={(event) => setCheckout((v) => ({ ...v, city: event.target.value }))}>
-                  <option>Delhi</option><option>Gurugram</option><option>Noida</option><option>Faridabad</option><option>Ghaziabad</option><option>Greater Noida</option>
-                </select>
-              </div>
               <div className="form-field">
                 <label>Payment Method</label>
                 <select value={checkout.paymentMethod} onChange={(event) => setCheckout((v) => ({ ...v, paymentMethod: event.target.value }))}>
@@ -171,11 +201,32 @@ export default function CartPage() {
                   <option>PO + Credit</option>
                 </select>
               </div>
+              <div className="form-field"><label>Coupon Code (optional)</label><input value={checkout.couponCode} onChange={(event) => setCheckout((v) => ({ ...v, couponCode: event.target.value.toUpperCase() }))} placeholder="Try MODIT5" /></div>
             </div>
-            <div className="form-field"><label>Coupon Code (optional)</label><input value={checkout.couponCode} onChange={(event) => setCheckout((v) => ({ ...v, couponCode: event.target.value.toUpperCase() }))} placeholder="Try MODIT5" /></div>
+
+            <button type="button" className="button" onClick={() => setShowAdvanced((v) => !v)}>
+              {showAdvanced ? 'Hide Advanced Business Fields' : 'Add Delivery and Project Details'}
+            </button>
+
+            {showAdvanced && (
+              <div style={{ marginTop: '10px' }}>
+                <div className="form-field"><label>Project / Order Label</label><input value={checkout.project} onChange={(event) => setCheckout((v) => ({ ...v, project: event.target.value }))} /></div>
+                <div className="grid-2">
+                  <div className="form-field">
+                    <label>City</label>
+                    <select value={checkout.city} onChange={(event) => setCheckout((v) => ({ ...v, city: event.target.value }))}>
+                      <option>Delhi</option><option>Gurugram</option><option>Noida</option><option>Faridabad</option><option>Ghaziabad</option><option>Greater Noida</option>
+                    </select>
+                  </div>
+                  <div className="form-field"><label>Delivery Address</label><input value={checkout.address} onChange={(event) => setCheckout((v) => ({ ...v, address: event.target.value }))} placeholder="Optional for express checkout" /></div>
+                </div>
+              </div>
+            )}
 
             <div className="action-row">
+              <button className="button" type="button" disabled={!hasItems || placing} onClick={placeExpressOrder}>{placing ? 'Placing...' : 'Express Order'}</button>
               <button className="button primary" type="submit" disabled={!hasItems || placing}>{placing ? 'Placing Order...' : 'Place Order'}</button>
+              <button className="button" type="button" onClick={() => router.push('/ai')}>Need MODIT AI Help?</button>
             </div>
           </form>
         </section>

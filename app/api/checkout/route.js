@@ -24,14 +24,14 @@ export async function POST(request) {
   const body = await request.json();
   const customerName = String(body.customerName || '').trim();
   const phone = String(body.phone || '').trim();
-  const address = String(body.address || '').trim();
-  const city = String(body.city || '').trim();
+  const address = String(body.address || '').trim() || 'Site address to be confirmed';
+  const city = String(body.city || '').trim() || 'Delhi';
   const project = String(body.project || '').trim() || 'General procurement order';
   const paymentMethod = String(body.paymentMethod || 'UPI').trim();
   const couponCode = String(body.couponCode || '').trim().toUpperCase();
 
-  if (!customerName || !phone || !address || !city) {
-    return Response.json({ error: 'customerName, phone, address and city are required.' }, { status: 400 });
+  if (!customerName || !phone) {
+    return Response.json({ error: 'customerName and phone are required.' }, { status: 400 });
   }
 
   const store = readStore();
