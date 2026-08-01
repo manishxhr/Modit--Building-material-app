@@ -315,20 +315,6 @@ export default function AIPage() {
         <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>MODIT AI Procurement Operations</h1>
         <p className="muted">Recommend materials, compare quotes, read BOQ, generate RFQ, negotiate, track and reorder.</p>
 
-        <section className="section">
-          <article className="info-card">
-            <div className="section-header" style={{ marginBottom: '10px' }}>
-              <h2>Recruiter Demo Shortcuts</h2>
-              <span className="badge">Under 30 sec</span>
-            </div>
-            <div className="action-row" style={{ marginTop: 0 }}>
-              <button type="button" className="button" onClick={runBoqDemo}>Run BOQ Demo</button>
-              <button type="button" className="button" onClick={runNegotiationDemo}>Run Negotiation Demo</button>
-              <button type="button" className="button" onClick={runVendorMatchDemo}>Run Vendor Match Demo</button>
-            </div>
-          </article>
-        </section>
-
         <section className="section grid-2">
           <form className="glass-card" style={{ padding: '16px' }} onSubmit={submitRun}>
             <h3>Project Material Planner</h3>
