@@ -796,6 +796,8 @@ th {
 .mobile-action-dock,
 .mobile-tabbar { display: none; }
 
+.mobile-cart-cta { display: none; }
+
 @media (max-width: 1100px) {
   .grid-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -918,6 +920,25 @@ th {
     background: rgba(255, 255, 255, 0.92);
     box-shadow: var(--shadow-sm);
     backdrop-filter: blur(14px);
+  }
+
+  .mobile-cart-cta {
+    position: fixed;
+    right: 12px;
+    bottom: calc(188px + env(safe-area-inset-bottom));
+    z-index: 92;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(130deg, var(--orange), #c45f20);
+    box-shadow: var(--shadow-md);
   }
 
   .mobile-action {

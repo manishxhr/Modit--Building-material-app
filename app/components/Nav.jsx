@@ -42,7 +42,7 @@ function getMobileActions(pathname) {
 
   if (pathname.startsWith('/catalog') || pathname.startsWith('/categories')) {
     return [
-      { href: '/rfq', label: 'Request Quote', primary: true },
+      { href: '/cart', label: 'Go To Cart', primary: true },
       { href: '/comparison', label: 'Compare Prices' }
     ];
   }

@@ -102,6 +102,7 @@ export default function CatalogPage() {
       <main className="page">
         <p className="eyebrow">Global Material Search</p>
         <h1 className="headline" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>Catalog, Filters and Instant Discovery</h1>
+        <Link className="mobile-cart-cta" href="/cart">Go To Cart</Link>
 
         <section className="section">
           <div className="search-box">
@@ -120,20 +121,7 @@ export default function CatalogPage() {
         </section>
 
         <section className="section">
-          <div className="section-header"><h2>Categories</h2><Link className="badge" href="/categories">Browse all</Link></div>
-          <div className="grid-4">
-            {categories.map((item) => (
-              <article key={item.key} className="category-card">
-                <div className="category-top"><span className="icon-pill">{item.icon}</span><span className="badge">Filter</span></div>
-                <h4 style={{ marginTop: '10px' }}>{item.name}</h4>
-                <p className="muted">{item.desc}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="section-header"><h2>Products</h2><Link className="badge" href="/comparison">Compare suppliers</Link></div>
+          <div className="section-header"><h2>All Products</h2><Link className="badge" href="/comparison">Compare suppliers</Link></div>
           <div className="action-row" style={{ marginBottom: '10px' }}>
             <Link className="button" href="/comparison">Open Supplier Comparison Table</Link>
             {firstRealItem && <Link className="button primary" href={'/product/' + firstRealItem.id}>Open Sample Product PDP</Link>}
