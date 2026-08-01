@@ -24,6 +24,7 @@ export default function CatalogPage() {
   const [items, setItems] = useState(bootItems);
   const [addingId, setAddingId] = useState('');
   const [loading, setLoading] = useState(true);
+  const firstRealItem = items.find((item) => !item.id.startsWith('sample-'));
 
   async function addToCart(productId) {
     setAddingId(productId);
@@ -135,7 +136,7 @@ export default function CatalogPage() {
           <div className="section-header"><h2>Products</h2><Link className="badge" href="/comparison">Compare suppliers</Link></div>
           <div className="action-row" style={{ marginBottom: '10px' }}>
             <Link className="button" href="/comparison">Open Supplier Comparison Table</Link>
-            {items[0] && <Link className="button primary" href={'/product/' + items[0].id}>Open Sample Product PDP</Link>}
+            {firstRealItem && <Link className="button primary" href={'/product/' + firstRealItem.id}>Open Sample Product PDP</Link>}
           </div>
           <div className="grid-3">
             {items.map((item) => (
